@@ -49,15 +49,6 @@ namespace lsp
 
             // Input controls
             BYPASS,
-            INT_CONTROL("d_in", "Delay in samples", U_SAMPLES, phaser::SAMPLES),
-            DRY_GAIN(0.0f),
-            WET_GAIN(1.0f),
-            OUT_GAIN,
-
-            // Output controls
-            METER_MINMAX("d_out", "Delay time in milliseconds", U_MSEC, 0.0f, phaser::DELAY_OUT_MAX_TIME),
-            METER_GAIN("min", "Input gain", GAIN_AMP_P_48_DB),
-            METER_GAIN("mout", "Output gain", GAIN_AMP_P_48_DB),
 
             PORTS_END
         };
@@ -70,80 +61,79 @@ namespace lsp
 
             // Input controls
             BYPASS,
-            INT_CONTROL("d_in", "Delay in samples", U_SAMPLES, phaser::SAMPLES),
-            DRY_GAIN(0.0f),
-            WET_GAIN(1.0f),
-            OUT_GAIN,
-
-            // Output controls
-            METER_MINMAX("d_out", "Delay time in milliseconds", U_MSEC, 0.0f, phaser::DELAY_OUT_MAX_TIME),
-            METER_GAIN("min_l", "Input gain left",  GAIN_AMP_P_48_DB),
-            METER_GAIN("mout_l", "Output gain left",  GAIN_AMP_P_48_DB),
-            METER_GAIN("min_r", "Input gain right",  GAIN_AMP_P_48_DB),
-            METER_GAIN("mout_r", "Output gain right", GAIN_AMP_P_48_DB),
 
             PORTS_END
         };
 
-        static const int plugin_classes[]       = { C_DELAY, -1 };
-        static const int clap_features_mono[]   = { CF_AUDIO_EFFECT, CF_UTILITY, CF_MONO, -1 };
-        static const int clap_features_stereo[] = { CF_AUDIO_EFFECT, CF_UTILITY, CF_STEREO, -1 };
+        static const int plugin_classes[]       = { C_PHASER, -1 };
+        static const int clap_features_mono[]   = { CF_AUDIO_EFFECT, CF_PHASER, CF_MONO, -1 };
+        static const int clap_features_stereo[] = { CF_AUDIO_EFFECT, CF_PHASER, CF_STEREO, -1 };
 
         const meta::bundle_t phaser_bundle =
         {
             "phaser",
-            "Plugin Template",
-            B_UTILITIES,
+            "Phaser",
+            B_EFFECTS,
             "", // TODO: provide ID of the video on YouTube
-            "" // TODO: write plugin description, should be the same to the english version in 'bundles.json'
+            "This plugin allows to simpulate multi-stage phaser effect"
         };
 
         const plugin_t phaser_mono =
         {
-            "Pluginschablone Mono",
-            "Plugin Template Mono",
-            "Plugin Template Mono",
-            "PS1M",
+            "Phaser Mono",
+            "Phaser Mono",
+            "Phaser Mono",
+            "PH1M",
             &developers::v_sadovnikov,
             "phaser_mono",
-            LSP_LV2_URI("phaser_mono"),
-            LSP_LV2UI_URI("phaser_mono"),
-            "xxxx",         // TODO: fill valid VST2 ID (4 letters/digits)
-            1,              // TODO: fill valid LADSPA identifier (positive decimal integer)
-            LSP_LADSPA_URI("phaser_mono"),
-            LSP_CLAP_URI("phaser_mono"),
+            {
+                LSP_LV2_URI("phaser_mono"),
+                LSP_LV2UI_URI("phaser_mono"),
+                "ph1m",
+                LSP_VST3_UID("ph1m    ph1m"),
+                LSP_VST3UI_UID("ph1m    ph1m"),
+                LSP_LADSPA_PHASER_BASE + 0,
+                LSP_LADSPA_URI("phaser_mono"),
+                LSP_CLAP_URI("phaser_mono"),
+                LSP_GST_UID("phaser_mono"),
+            },
             LSP_PLUGINS_PHASER_VERSION,
             plugin_classes,
             clap_features_mono,
             E_DUMP_STATE,
             phaser_mono_ports,
-            "template/plugin.xml",
-            NULL,
+            "effects/phaser.xml",
+            "effects/phaser",
             mono_plugin_port_groups,
             &phaser_bundle
         };
 
         const plugin_t phaser_stereo =
         {
-            "Pluginschablone Stereo",
-            "Plugin Template Stereo",
-            "Plugin Template Stereo",
-            "PS1S",
+            "Phaser Stereo",
+            "Phaser Stereo",
+            "Phaser Stereo",
+            "PH1S",
             &developers::v_sadovnikov,
             "phaser_stereo",
-            LSP_LV2_URI("phaser_stereo"),
-            LSP_LV2UI_URI("phaser_stereo"),
-            "yyyy",         // TODO: fill valid VST2 ID (4 letters/digits)
-            2,              // TODO: fill valid LADSPA identifier (positive decimal integer)
-            LSP_LADSPA_URI("phaser_stereo"),
-            LSP_CLAP_URI("phaser_stereo"),
+            {
+                LSP_LV2_URI("phaser_stereo"),
+                LSP_LV2UI_URI("phaser_stereo"),
+                "ph1s",
+                LSP_VST3_UID("ph1s    ph1s"),
+                LSP_VST3UI_UID("ph1s    ph1s"),
+                LSP_LADSPA_PHASER_BASE + 1,
+                LSP_LADSPA_URI("phaser_stereo"),
+                LSP_CLAP_URI("phaser_stereo"),
+                LSP_GST_UID("phaser_stereo"),
+            },
             LSP_PLUGINS_PHASER_VERSION,
             plugin_classes,
             clap_features_stereo,
             E_DUMP_STATE,
             phaser_stereo_ports,
-            "template/plugin.xml",
-            NULL,
+            "effects/phaser.xml",
+            "effects/phaser",
             stereo_plugin_port_groups,
             &phaser_bundle
         };

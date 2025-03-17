@@ -38,29 +38,216 @@ namespace lsp
 {
     namespace meta
     {
+        static const port_item_t osc_functions[] =
+        {
+            { "Triangular",             "phaser.osc.triangular"             },
+            { "Sine",                   "phaser.osc.sine"                   },
+            { "Stepped Sine",           "phaser.osc.stepped_sine"           },
+            { "Cubic",                  "phaser.osc.cubic"                  },
+            { "Stepped Cubic",          "phaser.osc.stepped_cubic"          },
+            { "Parabolic",              "phaser.osc.parabolic"              },
+            { "Reverse Parabolic",      "phaser.osc.reverse_parabolic"      },
+            { "Logarithmic",            "phaser.osc.logarithmic"            },
+            { "Reverse Logarithmic",    "phaser.osc.reverse_logarithmic"    },
+            { "Square Root",            "phaser.osc.square_root"            },
+            { "Reverse Square Root",    "phaser.osc.reverse_square_root"    },
+            { "Circular",               "phaser.osc.circular"               },
+            { "Reverse Circular",       "phaser.osc.reverse_circular"       },
+            { NULL, NULL }
+        };
+
+        static const port_item_t osc_periods[] =
+        {
+            { "Full",                   "phaser.period.full"                },
+            { "First",                  "phaser.period.first"               },
+            { "Last",                   "phaser.period.last"                },
+            { NULL, NULL }
+        };
+
+        static const port_item_t crossfade_type[] =
+        {
+            { "Linear",                 "fade.linear"                       },
+            { "Const Power",            "fade.const_power"                  },
+            { NULL, NULL }
+        };
+
+        static const port_item_t rate_type[] =
+        {
+            { "Rate",                   "phaser.rate.rate"                  },
+            { "Tempo",                  "phaser.rate.tempo"                 },
+            { "Static",                 "phaser.rate.static"                },
+            { NULL, NULL }
+        };
+
+        static const port_item_t filters_list[] =
+        {
+            { "1",                      NULL                                },
+            { "2",                      NULL                                },
+            { "3",                      NULL                                },
+            { "4",                      NULL                                },
+            { "5",                      NULL                                },
+            { "6",                      NULL                                },
+            { "7",                      NULL                                },
+            { "8",                      NULL                                },
+            { NULL,                     NULL                                }
+        };
+
+        static const port_item_t filter_slopes[] =
+        {
+            { "off",        "eq.slope.off"      },
+            { "12 dB/oct",  "eq.slope.12dbo"    },
+            { "24 dB/oct",  "eq.slope.24dbo"    },
+            { "36 dB/oct",  "eq.slope.36dbo"    },
+            { NULL, NULL }
+        };
+
         //-------------------------------------------------------------------------
         // Plugin metadata
 
-        // NOTE: Port identifiers should not be longer than 7 characters as it will overflow VST2 parameter name buffers
+        #define FILTER_METER_MONO(id, label) \
+            METER("fmp" id, "Filter meter" label " phase", U_DEG, phaser::PHASE), \
+            METER("fms" id, "Filter meter" label " shift", U_NONE, phaser::SHIFT), \
+            METER("fmd" id, "Filter meter" label " frequency", U_MSEC, phaser::LFO_FREQ)
+
+        #define FILTER_METER_STEREO(id, label) \
+            FILTER_METER_MONO(id "l", label " left"), \
+            FILTER_METER_MONO(id "r", label " right")
+
         static const port_t phaser_mono_ports[] =
         {
             // Input and output audio ports
             PORTS_MONO_PLUGIN,
 
-            // Input controls
+            // Bypass
             BYPASS,
+
+            // Operating modes
+            SWITCH("sphase", "Signal phase switch", 0.0f),
+            COMBO("hpm", "High-pass filter mode", 0, filter_slopes),
+            LOG_CONTROL("hpf", "High-pass filter frequency", U_HZ, phaser::HPF),
+            COMBO("lpm", "Low-pass filter mode", 0, filter_slopes),
+            LOG_CONTROL("lpf", "Low-pass filter frequency", U_HZ, phaser::LPF),
+
+            // Tempo/rate controls
+            LOG_CONTROL("rate", "Rate", U_HZ, phaser::RATE),
+            CONTROL("frac", "Time fraction", U_BAR, phaser::FRACTION),
+            CONTROL("denom", "Time fraction denominator", U_BAR, phaser::DENOMINATOR),
+            CONTROL("tempo", "Tempo", U_BPM, phaser::TEMPO),
+            SWITCH("sync", "Tempo sync", 0.0f),
+            COMBO("time", "Time computing method", 0, rate_type),
+            TRIGGER("reset", "Reset phase to initial value"),
+
+            // LFO settings
+            COMBO("filters", "Number of filters", phaser::FILTERS_DFL, filters_list),
+            CONTROL("xfade", "Crossfade", U_PERCENT, phaser::CROSSFADE),
+            COMBO("xtype", "Crossfade Type", 1, crossfade_type),
+            COMBO("lt", "LFO type", 1, osc_functions),
+            COMBO("lp", "LFO period", 0, osc_periods),
+            CONTROL("lo", "LFO overlap", U_PERCENT, phaser::OVERLAP),
+            LOG_CONTROL_DFL("lfs", "LFO frequency start", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_START),
+            LOG_CONTROL_DFL("lfe", "LFO frequency end", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_END),
+            CYC_CONTROL("lip", "LFO initial phase", U_DEG, phaser::PHASE),
+            CYC_CONTROL("lvp", "Inter-filter phase range", U_DEG, phaser::FILTER_PHASE),
+            MESH("lgr", "LFO graph", phaser::FILTERS_MAX + 1, phaser::LFO_MESH_SIZE),
+
+            // Feedback chain
+            SWITCH("fb_on", "Feedback on", 0),
+            CONTROL("fgain", "Feedback gain", U_GAIN_AMP, phaser::FEEDBACK_GAIN),
+            CONTROL("fdelay", "Feedback delay", U_MSEC, phaser::FEEDBACK_DELAY),
+            SWITCH("fphase", "Feedback phase switch", 0.0f),
+
+            // Loudness control
+            IN_GAIN,
+            DRY_GAIN(GAIN_AMP_M_INF_DB),
+            WET_GAIN(GAIN_AMP_0_DB),
+            DRYWET(100.0f),
+            OUT_GAIN,
+
+            // Filter meters
+            FILTER_METER_MONO("_1", " 1"),
+            FILTER_METER_MONO("_2", " 2"),
+            FILTER_METER_MONO("_3", " 3"),
+            FILTER_METER_MONO("_4", " 4"),
+            FILTER_METER_MONO("_5", " 5"),
+            FILTER_METER_MONO("_6", " 6"),
+            FILTER_METER_MONO("_7", " 7"),
+            FILTER_METER_MONO("_8", " 8"),
+
+            // Gain meters
+            METER_GAIN("min", "Input gain", GAIN_AMP_P_48_DB),
+            METER_GAIN("mout", "Output gain", GAIN_AMP_P_48_DB),
 
             PORTS_END
         };
 
-        // NOTE: Port identifiers should not be longer than 7 characters as it will overflow VST2 parameter name buffers
         static const port_t phaser_stereo_ports[] =
         {
             // Input and output audio ports
             PORTS_STEREO_PLUGIN,
 
-            // Input controls
+            // Bypass
             BYPASS,
+
+            // Operating modes
+            SWITCH("mono", "Test for mono compatibility", 0),
+            SWITCH("ms", "Mid/Side mode switch", 0.0f),
+            SWITCH("sphase", "Signal phase switch", 0.0f),
+            COMBO("hpm", "High-pass filter mode", 0, filter_slopes),
+            LOG_CONTROL("hpf", "High-pass filter frequency", U_HZ, phaser::HPF),
+            COMBO("lpm", "Low-pass filter mode", 0, filter_slopes),
+            LOG_CONTROL("lpf", "Low-pass filter frequency", U_HZ, phaser::LPF),
+
+            // Tempo/rate controls
+            LOG_CONTROL("rate", "Rate", U_HZ, phaser::RATE),
+            CONTROL("frac", "Time fraction", U_BAR, phaser::FRACTION),
+            CONTROL("denom", "Time fraction denominator", U_BAR, phaser::DENOMINATOR),
+            CONTROL("tempo", "Tempo", U_BPM, phaser::TEMPO),
+            SWITCH("sync", "Tempo sync", 0.0f),
+            COMBO("time", "Time computing method", 0, rate_type),
+            TRIGGER("reset", "Reset phase to initial value"),
+
+            // LFO settings
+            COMBO("filters", "Number of filters", phaser::FILTERS_DFL, filters_list),
+            CONTROL("xfade", "Crossfade", U_PERCENT, phaser::CROSSFADE),
+            COMBO("xtype", "Crossfade Type", 1, crossfade_type),
+            COMBO("lt", "LFO type", 1, osc_functions),
+            COMBO("lp", "LFO period", 0, osc_periods),
+            CONTROL("lo", "LFO overlap", U_PERCENT, phaser::OVERLAP),
+            LOG_CONTROL_DFL("lfs", "LFO frequency start", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_START),
+            LOG_CONTROL_DFL("lfe", "LFO frequency end", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_END),
+            CYC_CONTROL("lip", "LFO initial phase", U_DEG, phaser::PHASE),
+            CYC_CONTROL("lvp", "Inter-filter phase range", U_DEG, phaser::FILTER_PHASE),
+            CYC_CONTROL("lcp", "Inter-channel phase", U_DEG, phaser::CHANNEL_PHASE),
+            MESH("lgr", "LFO graph", phaser::FILTERS_MAX + 1, phaser::LFO_MESH_SIZE),
+
+            // Feedback chain
+            SWITCH("fb_on", "Feedback on", 0),
+            CONTROL("fgain", "Feedback gain", U_GAIN_AMP, phaser::FEEDBACK_GAIN),
+            CONTROL("fdelay", "Feedback delay", U_MSEC, phaser::FEEDBACK_DELAY),
+            SWITCH("fphase", "Feedback phase switch", 0.0f),
+
+            // Loudness control
+            IN_GAIN,
+            DRY_GAIN(GAIN_AMP_M_INF_DB),
+            WET_GAIN(GAIN_AMP_0_DB),
+            DRYWET(100.0f),
+            OUT_GAIN,
+
+            // Filter meters
+            FILTER_METER_STEREO("_1", " 1"),
+            FILTER_METER_STEREO("_2", " 2"),
+            FILTER_METER_STEREO("_3", " 3"),
+            FILTER_METER_STEREO("_4", " 4"),
+            FILTER_METER_STEREO("_5", " 5"),
+            FILTER_METER_STEREO("_6", " 6"),
+            FILTER_METER_STEREO("_7", " 7"),
+            FILTER_METER_STEREO("_8", " 8"),
+
+            // Gain meters
+            METER_GAIN("min_l", "Input gain left",  GAIN_AMP_P_48_DB),
+            METER_GAIN("mout_l", "Output gain left",  GAIN_AMP_P_48_DB),
+            METER_GAIN("min_r", "Input gain right",  GAIN_AMP_P_48_DB),
+            METER_GAIN("mout_r", "Output gain right", GAIN_AMP_P_48_DB),
 
             PORTS_END
         };

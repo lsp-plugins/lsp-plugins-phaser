@@ -326,7 +326,18 @@ namespace lsp
 
         void phaser::do_destroy()
         {
-            // TODO
+            // Destroy channels
+            if (vChannels != NULL)
+            {
+                for (size_t i=0; i<nChannels; ++i)
+                {
+                    channel_t *c    = &vChannels[i];
+
+                    c->sBypass.destroy();
+                    c->sEq.destroy();
+                }
+                vChannels   = NULL;
+            }
 
             // Free previously allocated data chunk
             if (pData != NULL)

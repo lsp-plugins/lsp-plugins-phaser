@@ -116,6 +116,20 @@ namespace lsp
             static constexpr float  LPF_STEP                = 0.0025f;
 
             static constexpr size_t LFO_MESH_SIZE           = 361;
+
+            enum osc_period_t
+            {
+                OSC_FULL,
+                OSC_FIRST,
+                OSC_LAST
+            };
+
+            enum osc_mode_t
+            {
+                MODE_RATE,
+                MODE_TEMPO,
+                MODE_STATIC
+            };
         } phaser;
 
         // Plugin type metadata

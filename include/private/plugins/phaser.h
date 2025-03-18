@@ -27,6 +27,7 @@
 #include <lsp-plug.in/dsp-units/filters/Equalizer.h>
 #include <lsp-plug.in/dsp-units/misc/lfo.h>
 #include <lsp-plug.in/dsp-units/util/Delay.h>
+#include <lsp-plug.in/dsp-units/util/RingBuffer.h>
 #include <lsp-plug.in/plug-fw/plug.h>
 #include <private/meta/phaser.h>
 
@@ -40,6 +41,8 @@ namespace lsp
         class phaser: public plug::Module
         {
             protected:
+                typedef float (*mix_func_t)(float o_value, float n_value, float k);
+
                 typedef struct filter_t
                 {
                     uint32_t                nPhase;             // Phase shift relative to global LFO
@@ -59,10 +62,15 @@ namespace lsp
                     uint32_t                nType;              // LFO type
                     uint32_t                nPeriod;            // LFO period (full, first half, second half)
                     float                   fOverlap;           // LFO overlapping
+                    float                   fOldMinFreq;        // Old minimum frequency
                     float                   fMinFreq;           // Minimum frequency
+                    float                   fOldMaxFreq;        // Old maximum frequency
                     float                   fMaxFreq;           // Maximum frequency
                     uint32_t                nOldInitPhase;      // Old init phase
                     uint32_t                nInitPhase;         // Initial phase
+                    uint32_t                nPhase;             // Current base LFO phase
+                    uint32_t                nOldPhaseStep;      // Old phase increment
+                    uint32_t                nPhaseStep;         // Phase increment
                     float                   fIFilterPhase;      // Inter-filter phase
                     float                   fIChanPhase;        // Inter-channel phase
                     float                   fArg[2];            // LFO arguments
@@ -87,6 +95,7 @@ namespace lsp
                 {
                     // DSP processing modules
                     dspu::Bypass            sBypass;            // Bypass
+                    dspu::RingBuffer        sFeedback;          // Feedback delay buffer
                     dspu::Equalizer         sEq;                // Equalizer for processed signal
                     filter_t                vFilters[meta::phaser::FILTERS_MAX];    // Filters
 
@@ -114,6 +123,24 @@ namespace lsp
                 lfo_t                   sLfo;               // Low-frequency oscillator
                 float                  *vBuffer;            // Temporary buffer for processing
                 float                  *vLfoPhase;          // Buffer that stores LFO phase
+
+                float                   fRate;              // Rate
+                uint32_t                nCrossfade;         // Cross-fade threshold
+                float                   fCrossfade;         // Cross-fade coefficient
+                mix_func_t              pCrossfadeFunc;     // Cross-fade function
+                float                   fOldInGain;         // Old input gain
+                float                   fInGain;            // Input gain
+                float                   fOldDryGain;        // Old dry gain
+                float                   fDryGain;           // Dry gain
+                float                   fOldWetGain;        // Old wet gain
+                float                   fWetGain;           // Wet gain
+                float                   fOldFeedGain;       // Old feedback gain
+                float                   fFeedGain;          // Feed-back gain
+                uint32_t                nOldFeedDelay;      // Old feedback delay
+                uint32_t                nFeedDelay;         // Feed-back delay
+                bool                    bMS;                // Mid/Side mode
+                bool                    bMono;              // Mono mode
+                bool                    bUpdateFilters;     // Update filters
 
                 plug::IPort            *pBypass;            // Bypass switch
                 plug::IPort            *pMono;              // Mono compatibility test
@@ -149,7 +176,14 @@ namespace lsp
                 uint8_t                *pData;              // Allocated data
 
             protected:
-                void                do_destroy();
+                static inline uint32_t  phase_to_int(float phase);
+                static inline float     lerp(float o_value, float n_value, float k);
+                static inline float     qlerp(float o_value, float n_value, float k);
+                static inline int32_t   ilerp(int32_t o_value, int32_t n_value, float k);
+                static inline int32_t   elerp(int32_t o_value, int32_t n_value, float k);
+
+            protected:
+                void                    do_destroy();
 
             public:
                 explicit phaser(const meta::plugin_t *meta);
@@ -160,14 +194,15 @@ namespace lsp
                 phaser & operator = (const phaser &) = delete;
                 phaser & operator = (phaser &&) = delete;
 
-                virtual void        init(plug::IWrapper *wrapper, plug::IPort **ports) override;
-                virtual void        destroy() override;
+                virtual void            init(plug::IWrapper *wrapper, plug::IPort **ports) override;
+                virtual void            destroy() override;
 
             public:
-                virtual void        update_sample_rate(long sr) override;
-                virtual void        update_settings() override;
-                virtual void        process(size_t samples) override;
-                virtual void        dump(dspu::IStateDumper *v) const override;
+                virtual void            update_sample_rate(long sr) override;
+                virtual void            update_settings() override;
+                virtual void            process(size_t samples) override;
+                virtual void            ui_activated() override;
+                virtual void            dump(dspu::IStateDumper *v) const override;
         };
 
     } /* namespace plugins */

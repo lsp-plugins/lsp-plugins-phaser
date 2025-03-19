@@ -683,17 +683,25 @@ namespace lsp
                     for (size_t i=0; i<to_do; ++i)
                     {
                         const float s           = i * k_to_do;
-//                        const float fmin        = elerp(sLfo.fOldMinFreq, sLfo.fMinFreq, s); // Minimum frequency
-//                        const float fmax        = elerp(sLfo.fOldMaxFreq, sLfo.fMaxFreq, s); // Maximum frequency
+                        const float fmin        = elerp(sLfo.fOldMinFreq, sLfo.fMinFreq, s); // Minimum frequency
+                        const float fmax        = elerp(sLfo.fOldMaxFreq, sLfo.fMaxFreq, s); // Maximum frequency
 
-//                        // Apply each all-pass filter to the signal
-//                        for (size_t j=0; j<nFilters; ++j)
-//                        {
-//                            filter_t *f             = &c->vFilters[j];
-//                            uint32_t i_phase        = (phase + ilerp(sLfo.nOldInitPhase + f->nPhase, sLfo.nInitPhase + f->nPhase, s)) & PHASE_MASK;
-//
-//                            // TODO: apply filters here
-//                        }
+                        // Apply each all-pass filter to the signal
+                        for (size_t j=0; j<nFilters; ++j)
+                        {
+                            filter_t *f             = &c->vFilters[j];
+                            uint32_t i_phase        = (phase + ilerp(sLfo.nOldInitPhase + f->nPhase, sLfo.nInitPhase + f->nPhase, s)) & PHASE_MASK;
+                            const float o_phase     = i_phase * fCrossfade;
+                            const float c_phase     = o_phase * sLfo.fArg[0] + sLfo.fArg[1];
+                            const float c_func      = f->fNormScale * sLfo.pFunc(c_phase) + f->fNormShift;
+                            const float c_freq      = elerp(fmin, fmax, c_func);
+
+                            f->fOutPhase            = o_phase;
+                            f->fOutShift            = c_func;
+                            f->fOutFreq             = c_freq;
+
+                            // TODO: apply filter processing here
+                        }
 
                         // Update current phase
                         phase                   = (phase + ilerp(sLfo.nOldPhaseStep, sLfo.nPhaseStep, s)) & PHASE_MASK;
@@ -779,7 +787,7 @@ namespace lsp
                 }
 
                 // Clear other filter meters
-                for (size_t j=0; j < meta::phaser::FILTERS_MAX; ++j)
+                for (size_t j=nFilters; j < meta::phaser::FILTERS_MAX; ++j)
                 {
                     filter_t *f         = &c->vFilters[j];
 
@@ -787,6 +795,22 @@ namespace lsp
                     f->pShift->set_value(0.0f);
                     f->pOutFreq->set_value(meta::phaser::LFO_FREQ_MIN);
                 }
+
+//            #ifdef LSP_TRACE
+//                for (size_t j=0; j < meta::phaser::FILTERS_MAX; ++j)
+//                {
+//                    filter_t *f         = &c->vFilters[j];
+//
+//                    lsp_trace("channel %d filter %d = {%s=%f, %s=%f, %s=%f}",
+//                        int(i), int(j),
+//                        f->pPhase->id(),
+//                        f->pPhase->value(),
+//                        f->pShift->id(),
+//                        f->pShift->value(),
+//                        f->pOutFreq->id(),
+//                        f->pOutFreq->value());
+//                }
+//            #endif /* LSP_TRACE */
             }
 
             // Need to synchronize LFO mesh?

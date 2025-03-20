@@ -29,6 +29,7 @@
 #include <lsp-plug.in/dsp-units/util/Delay.h>
 #include <lsp-plug.in/dsp-units/util/RingBuffer.h>
 #include <lsp-plug.in/plug-fw/plug.h>
+#include <lsp-plug.in/dsp/dsp.h>
 #include <private/meta/phaser.h>
 
 namespace lsp
@@ -45,6 +46,7 @@ namespace lsp
 
                 typedef struct filter_t
                 {
+                    dsp::biquad_x1_t        sAllpass;           // Allpass filter data
                     uint32_t                nPhase;             // Phase shift relative to global LFO
                     float                   fNormShift;         // Normalized shift
                     float                   fNormScale;         // Normalized scale
@@ -124,6 +126,8 @@ namespace lsp
                 float                  *vBuffer;            // Temporary buffer for processing
                 float                  *vLfoPhase;          // Buffer that stores LFO phase
 
+                float                   fRevSampleRate;     // Reverse sample rate
+                float                   fRevQuality;        // Filter reverse quality
                 float                   fRate;              // Rate
                 uint32_t                nCrossfade;         // Cross-fade threshold
                 float                   fCrossfade;         // Cross-fade coefficient
@@ -180,9 +184,11 @@ namespace lsp
                 static inline float     lerp(float o_value, float n_value, float k);
                 static inline float     qlerp(float o_value, float n_value, float k);
                 static inline int32_t   ilerp(int32_t o_value, int32_t n_value, float k);
-                static inline int32_t   elerp(int32_t o_value, int32_t n_value, float k);
+                static inline float     elerp(float o_value, float n_value, float k);
 
             protected:
+                inline float            process_allpass(dsp::biquad_x1_t *f, float freq, float s);
+
                 void                    do_destroy();
 
             public:

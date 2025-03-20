@@ -120,6 +120,8 @@ namespace lsp
             vBuffer             = NULL;
             vLfoPhase           = NULL;
 
+            fRevSampleRate      = 0.0f;
+            fRevQuality         = 0.5f;
             fRate               = 0.0f;
             nCrossfade          = 0;
             fCrossfade          = 0.0f;
@@ -222,6 +224,15 @@ namespace lsp
                 for (size_t j=0; j<meta::phaser::FILTERS_MAX; ++j)
                 {
                     filter_t *f             = &c->vFilters[j];
+                    dsp::biquad_x1_t *xf    = &f->sAllpass;
+                    xf->b0                  = 0.0f;
+                    xf->b1                  = 0.0f;
+                    xf->b2                  = 0.0f;
+                    xf->a1                  = 0.0f;
+                    xf->a2                  = 0.0f;
+                    xf->p0                  = 0.0f;
+                    xf->p1                  = 0.0f;
+                    xf->p2                  = 0.0f;
 
                     f->nPhase               = 0;
                     f->fNormShift           = 0.0f;
@@ -397,9 +408,37 @@ namespace lsp
             return o_value + (n_value - o_value) * k;
         }
 
-        inline int32_t phaser::elerp(int32_t o_value, int32_t n_value, float k)
+        inline float phaser::elerp(float o_value, float n_value, float k)
         {
             return o_value * expf(logf(n_value/o_value) * k);
+        }
+
+        inline float phaser::process_allpass(dsp::biquad_x1_t *f, float freq, float s)
+        {
+            // Update biquad filter
+            const float omega    = fRevSampleRate * freq;
+            const float cs       = sinf(omega);
+            const float cc       = cosf(omega);
+            const float alpha    = cs * fRevQuality;
+
+            const float k_b0    = 1.0f / (1.0f + alpha);
+
+            f->b0   = (1.0f - alpha) * k_b0;
+            f->b1   = -2.0f * cc * k_b0;
+            f->b2   = 1.0f;
+            f->a1   = - f->b1;
+            f->a2   = - f->b0;
+
+            // Apply processing
+            const float s2      = f->b0*s + f->p0;
+            const float p1      = f->b1*s + f->a1*s2;
+            const float p2      = f->b2*s + f->a2*s2;
+
+            // Shift buffer
+            f->p0               = f->p1 + p1;
+            f->p1               = p2;
+
+            return s2;
         }
 
         void phaser::update_sample_rate(long sr)
@@ -407,6 +446,7 @@ namespace lsp
             plug::Module::update_sample_rate(sr);
 
             // Update sample rate for the bypass processors
+            fRevSampleRate      = 2.0f * M_PI / float(fSampleRate);
             size_t max_feedback = dspu::millis_to_samples(sr, meta::phaser::FEEDBACK_DELAY_MAX);
 
             for (size_t i=0; i<nChannels; ++i)
@@ -542,6 +582,11 @@ namespace lsp
             // Update LFO preferences
             const size_t lfo_type   = size_t(sLfo.pType->value());
             const size_t lfo_period = size_t(sLfo.pPeriod->value());
+            const float freq_limit  = fSampleRate * 0.49f;
+            sLfo.fOldMinFreq        = lsp_min(sLfo.fOldMinFreq, freq_limit);
+            sLfo.fMinFreq           = lsp_min(sLfo.pMinFreq->value(), freq_limit);
+            sLfo.fOldMaxFreq        = lsp_min(sLfo.fOldMaxFreq, freq_limit);
+            sLfo.fMaxFreq           = lsp_min(sLfo.pMaxFreq->value(), freq_limit);
 
             // The form of the LFO has changed?
             if ((lfo_type != sLfo.nType) || (lfo_period != sLfo.nPeriod))
@@ -677,7 +722,7 @@ namespace lsp
                     phase                   = sLfo.nPhase;
 
                     // Store original buffer contents for mixing with processed data
-                    dsp::copy(vBuffer, c->vBuffer, to_do);
+//                    dsp::copy(vBuffer, c->vBuffer, to_do);
 
                     // Process each sample in the buffer
                     for (size_t i=0; i<to_do; ++i)
@@ -685,6 +730,7 @@ namespace lsp
                         const float s           = i * k_to_do;
                         const float fmin        = elerp(sLfo.fOldMinFreq, sLfo.fMinFreq, s); // Minimum frequency
                         const float fmax        = elerp(sLfo.fOldMaxFreq, sLfo.fMaxFreq, s); // Maximum frequency
+                        float sample            = c->vBuffer[i];
 
                         // Apply each all-pass filter to the signal
                         for (size_t j=0; j<nFilters; ++j)
@@ -700,12 +746,18 @@ namespace lsp
                             f->fOutShift            = c_func;
                             f->fOutFreq             = c_freq;
 
-                            // TODO: apply filter processing here
+                            // Apply filter processing
+                            sample                  = process_allpass(&f->sAllpass, c_freq, sample);
                         }
+
+                        // Add processed sample to the original one
+                        c->vBuffer[i]           = (c->vBuffer[i] + sample) * 0.5f;
 
                         // Update current phase
                         phase                   = (phase + ilerp(sLfo.nOldPhaseStep, sLfo.nPhaseStep, s)) & PHASE_MASK;
                     }
+
+//                    dsp::add2(c->vBuffer, vBuffer);
 
                     // TODO: process feedback
 

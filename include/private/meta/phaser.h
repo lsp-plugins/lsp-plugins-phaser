@@ -63,7 +63,7 @@ namespace lsp
             static constexpr float  LFO_FREQ_START          = 200.0f;
             static constexpr float  LFO_FREQ_END            = 5000.0f;
             static constexpr float  LFO_FREQ_DFL            = LFO_FREQ_MIN;
-            static constexpr float  LFO_FREQ_STEP           = 0.1f;
+            static constexpr float  LFO_FREQ_STEP           = 0.01f;
 
             static constexpr float  CROSSFADE_MIN           = 0.0f;
             static constexpr float  CROSSFADE_MAX           = 50.0f;

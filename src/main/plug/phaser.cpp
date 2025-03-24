@@ -22,6 +22,7 @@
 #include <lsp-plug.in/common/alloc.h>
 #include <lsp-plug.in/common/debug.h>
 #include <lsp-plug.in/dsp/dsp.h>
+#include <lsp-plug.in/dsp-units/misc/quickmath.h>
 #include <lsp-plug.in/dsp-units/units.h>
 #include <lsp-plug.in/plug-fw/meta/func.h>
 #include <lsp-plug.in/shared/debug.h>
@@ -389,30 +390,10 @@ namespace lsp
             return float(PHASE_MAX) * (phase / 360.0f);
         }
 
-        inline float phaser::lerp(float o_value, float n_value, float k)
-        {
-            return o_value + (n_value - o_value) * k;
-        }
-
-        inline float phaser::qlerp(float o_value, float n_value, float k)
-        {
-            return o_value * sqrtf(1.0f - k) + n_value * sqrtf(k);
-        }
-
-        inline int32_t phaser::ilerp(int32_t o_value, int32_t n_value, float k)
-        {
-            return o_value + (n_value - o_value) * k;
-        }
-
-        inline float phaser::elerp(float o_value, float n_value, float k)
-        {
-            return o_value * expf(logf(n_value/o_value) * k);
-        }
-
         inline float phaser::process_allpass(float *d, float freq, float s)
         {
             // Update biquad filter
-            const float cc      = cosf(fRevSampleRate * freq);
+            const float cc      = dspu::quick_cosf(fRevSampleRate * freq);
             const float alpha   = sqrtf(1.0f - cc*cc) * fRevQuality;
 
             const float k_b0    = 1.0f / (1.0f + alpha);
@@ -511,7 +492,7 @@ namespace lsp
             fFeedGain               = (pFeedPhase->value() >= 0.5f) ? -feed_gain : feed_gain;
             nCrossfade              = float(PHASE_MAX) * crossfade * 2.0f;
             fCrossfade              = PHASE_COEFF * (1.0f - crossfade);
-            pCrossfadeFunc          = (int(pCrossfadeType->value()) == 0) ? lerp : qlerp;
+            pCrossfadeFunc          = (int(pCrossfadeType->value()) == 0) ? dspu::lerp : dspu::qlerp;
 
             // LFO setup
             const size_t filters    = lsp_min(pFilters->value() + 1, meta::phaser::FILTERS_MAX);
@@ -549,7 +530,7 @@ namespace lsp
                 bUpdateFilters          = false;
 
                 const float p_step      = sLfo.fIFilterPhase / float(nFilters);
-                const float ovl_width   = lerp(1.0f / nFilters, 1.0f, sLfo.fOverlap);
+                const float ovl_width   = dspu::lerp(1.0f / nFilters, 1.0f, sLfo.fOverlap);
                 const float ovl_step    = (nFilters > 1) ? (1.0f - ovl_width) / (nFilters - 1) : 0.0f;
 
                 for (size_t i=0; i < nChannels; ++i)
@@ -656,7 +637,7 @@ namespace lsp
             {
                 const float k = 1.0f / float(count);
                 for (size_t i=0; i<count; ++i)
-                    dst[i]                  = elerp(min, max, i*k);
+                    dst[i]                  = dspu::quick_elerp(min, max, i*k);
             }
             else
                 dsp::fill(dst, min, count);
@@ -738,7 +719,7 @@ namespace lsp
                     {
                         const float s           = i * k_to_do;
                         float sample            = c->vBuffer[i];
-                        const uint32_t lfo_phase= ilerp(sLfo.nOldInitPhase, sLfo.nInitPhase, s);
+                        const uint32_t lfo_phase= dspu::ilerp(sLfo.nOldInitPhase, sLfo.nInitPhase, s);
 
                         // Apply each all-pass filter to the signal
                         for (size_t j=0; j<nFilters; ++j)
@@ -748,7 +729,7 @@ namespace lsp
                             const float o_phase     = i_phase * fCrossfade;
                             const float c_phase     = o_phase * sLfo.fArg[0] + sLfo.fArg[1];
                             const float c_func      = f->fNormScale * sLfo.pFunc(c_phase) + f->fNormShift;
-                            const float c_freq      = elerp(fmin[i], fmax[i], c_func);
+                            const float c_freq      = dspu::quick_elerp(fmin[i], fmax[i], c_func);
 
                             // Apply filter processing
                             sample                  = process_allpass(f->sAllpass, c_freq, sample);
@@ -760,7 +741,7 @@ namespace lsp
                         c->vBuffer[i]           = (c->vBuffer[i] + sample) * 0.5f;
 
                         // Update current phase
-                        phase                   = (phase + ilerp(sLfo.nOldPhaseStep, sLfo.nPhaseStep, s)) & PHASE_MASK;
+                        phase                   = (phase + dspu::ilerp(sLfo.nOldPhaseStep, sLfo.nPhaseStep, s)) & PHASE_MASK;
                     }
 
                     // Sync state of filters
@@ -772,7 +753,7 @@ namespace lsp
                             const float o_phase     = i_phase * fCrossfade;
                             const float c_phase     = o_phase * sLfo.fArg[0] + sLfo.fArg[1];
                             const float c_func      = f->fNormScale * sLfo.pFunc(c_phase) + f->fNormShift;
-                            const float c_freq      = elerp(sLfo.fMinFreq, sLfo.fMaxFreq, c_func);
+                            const float c_freq      = dspu::quick_elerp(sLfo.fMinFreq, sLfo.fMaxFreq, c_func);
 
                             f->fOutPhase            = o_phase;
                             f->fOutShift            = c_func;

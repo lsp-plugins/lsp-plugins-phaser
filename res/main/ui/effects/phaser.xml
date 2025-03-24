@@ -289,10 +289,15 @@
 					</cell>
 					
 					<cell cols="2">
-						<hbox>
+						<grid rows="2" cols="2">
 							<label text="labels.filters" />
 							<combo id="filters" />
-						</hbox>
+							<label text="labels.quality" />
+							<hbox>
+								<knob id="qfactor" />
+								<value id="qfactor" sline="true" />
+							</hbox>
+						</grid>
 					</cell>
 					
 					<!-- feedback -->

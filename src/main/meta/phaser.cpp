@@ -139,6 +139,7 @@ namespace lsp
 
             // LFO settings
             COMBO("filters", "Number of filters", phaser::FILTERS_DFL, filters_list),
+            LOG_CONTROL("qfactor", "Filter quality (Q factor)", U_NONE, phaser::FILTER_QUALITY),
             CONTROL("xfade", "Crossfade", U_PERCENT, phaser::CROSSFADE),
             COMBO("xtype", "Crossfade Type", 1, crossfade_type),
             COMBO("lt", "LFO type", 1, osc_functions),
@@ -208,6 +209,7 @@ namespace lsp
 
             // LFO settings
             COMBO("filters", "Number of filters", phaser::FILTERS_DFL - phaser::FILTERS_MIN, filters_list),
+            LOG_CONTROL("qfactor", "Filter quality (Q factor)", U_NONE, phaser::FILTER_QUALITY),
             CONTROL("xfade", "Crossfade", U_PERCENT, phaser::CROSSFADE),
             COMBO("xtype", "Crossfade Type", 1, crossfade_type),
             COMBO("type", "LFO type", 1, osc_functions),

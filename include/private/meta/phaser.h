@@ -115,6 +115,11 @@ namespace lsp
             static constexpr float  LPF_DFL                 = 20000.0f;
             static constexpr float  LPF_STEP                = 0.0025f;
 
+            static constexpr float  FILTER_QUALITY_MIN      = 0.1f;
+            static constexpr float  FILTER_QUALITY_MAX      = 10.0f;
+            static constexpr float  FILTER_QUALITY_DFL      = 1.0f;
+            static constexpr float  FILTER_QUALITY_STEP     = 0.0025f;
+
             static constexpr size_t LFO_MESH_SIZE           = 361;
 
             enum osc_period_t

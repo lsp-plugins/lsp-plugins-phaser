@@ -46,7 +46,7 @@ namespace lsp
 
                 typedef struct filter_t
                 {
-                    dsp::biquad_x1_t        sAllpass;           // Allpass filter data
+                    float                   sAllpass[2];        // Allpass filter data
                     uint32_t                nPhase;             // Phase shift relative to global LFO
                     float                   fNormShift;         // Normalized shift
                     float                   fNormScale;         // Normalized scale
@@ -163,6 +163,7 @@ namespace lsp
                 plug::IPort            *pReset;             // Reset phase to initial value
 
                 plug::IPort            *pFilters;           // Number of filters used
+                plug::IPort            *pFilterQuality;     // Filter quality
                 plug::IPort            *pCrossfade;         // Crossfade length
                 plug::IPort            *pCrossfadeType;     // Crossfade type
 
@@ -186,8 +187,10 @@ namespace lsp
                 static inline int32_t   ilerp(int32_t o_value, int32_t n_value, float k);
                 static inline float     elerp(float o_value, float n_value, float k);
 
+                static inline void      lerp_frequencies(float *dst, float min, float max, size_t count);
+
             protected:
-                inline float            process_allpass(dsp::biquad_x1_t *f, float freq, float s);
+                inline float            process_allpass(float *d, float freq, float s);
 
                 void                    do_destroy();
 

@@ -107,7 +107,7 @@ namespace lsp
         #define FILTER_METER_MONO(id, label) \
             METER("fmp" id, "Filter meter" label " phase", U_DEG, phaser::PHASE), \
             METER("fms" id, "Filter meter" label " shift", U_NONE, phaser::SHIFT), \
-            METER("fmd" id, "Filter meter" label " frequency", U_MSEC, phaser::LFO_FREQ)
+            METER("fmf" id, "Filter meter" label " frequency", U_MSEC, phaser::LFO_FREQ)
 
         #define FILTER_METER_STEREO(id, label) \
             FILTER_METER_MONO(id "l", label " left"), \

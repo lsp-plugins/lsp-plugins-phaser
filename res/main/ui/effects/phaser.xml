@@ -393,13 +393,18 @@
 					</cell>
 					
 					<cell cols="2">
-						<grid rows="2" cols="2">
+						<grid rows="3" cols="2">
 							<label text="labels.filters" />
 							<combo id="filters" />
 							<label text="labels.quality" />
 							<hbox>
 								<knob id="qfactor" />
 								<value id="qfactor" sline="true" />
+							</hbox>
+							<label text="labels.depth" />
+							<hbox>
+								<knob id="depth" />
+								<value id="depth" sline="true" />
 							</hbox>
 						</grid>
 					</cell>

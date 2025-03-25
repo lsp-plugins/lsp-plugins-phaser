@@ -130,6 +130,8 @@ namespace lsp
                 float                   fRevSampleRate;     // Reverse sample rate
                 float                   fRevQuality;        // Filter reverse quality
                 float                   fRate;              // Rate
+                float                   fOldDepth;          // Old Depth
+                float                   fDepth;             // Depth
                 uint32_t                nCrossfade;         // Cross-fade threshold
                 float                   fCrossfade;         // Cross-fade coefficient
                 float                   fRevCrossfade;      // Reverse cross-fade coefficient
@@ -158,6 +160,7 @@ namespace lsp
                 plug::IPort            *pLpfFreq;           // Low-pass filter frequency
 
                 plug::IPort            *pRate;              // Rate
+                plug::IPort            *pDepth;             // Depth
                 plug::IPort            *pFraction;          // Time fraction
                 plug::IPort            *pTempo;             // Tempo
                 plug::IPort            *pTempoSync;         // Tempo sync

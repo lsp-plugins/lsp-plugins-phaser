@@ -124,6 +124,8 @@ namespace lsp
             fRevSampleRate      = 0.0f;
             fRevQuality         = 0.5f;
             fRate               = 0.0f;
+            fOldDepth           = GAIN_AMP_0_DB;
+            fDepth              = GAIN_AMP_0_DB;
             nCrossfade          = 0;
             fCrossfade          = 0.0f;
             fRevCrossfade       = 0.0f;
@@ -154,6 +156,7 @@ namespace lsp
             pLpfFreq            = NULL;
 
             pRate               = NULL;
+            pDepth              = NULL;
             pFraction           = NULL;
             pTempo              = NULL;
             pTempoSync          = NULL;
@@ -288,6 +291,7 @@ namespace lsp
             // Tempo/rate controls
             lsp_trace("Binding tempo/rate controls");
             BIND_PORT(pRate);
+            BIND_PORT(pDepth);
             BIND_PORT(pFraction);
             SKIP_PORT("Denominator");   // Skip denominator
             BIND_PORT(pTempo);
@@ -457,6 +461,8 @@ namespace lsp
             float rate              = 0.0f;
             uint32_t mode           = pTimeMode->value();
             sLfo.nOldPhaseStep      = sLfo.nPhaseStep;
+            fOldDepth               = fDepth;
+            fDepth                  = pDepth->value();
 
             switch (mode)
             {
@@ -737,6 +743,11 @@ namespace lsp
                         float sample            = c->vBuffer[i];
                         const uint32_t lfo_phase= dspu::ilerp(sLfo.nOldInitPhase, sLfo.nInitPhase, s);
 
+                        // Apply feedback
+                        const ssize_t fb_delay  = dspu::ilerp(nOldFeedDelay, nFeedDelay, s);
+                        const float fb_sample   = c->sFeedback.get(fb_delay);
+                        sample                 += fb_sample * dspu::lerp(fOldFeedGain, fFeedGain, s);
+
                         // Apply each all-pass filter to the signal
                         for (size_t j=0; j<nFilters; ++j)
                         {
@@ -775,8 +786,12 @@ namespace lsp
                                 sample                  = process_allpass(&f->sAllpass[0], c_freq, sample);
                         }
 
+                        // Append sample to feedback
+                        c->sFeedback.append(sample);
+
                         // Add processed sample to the original one
-                        c->vBuffer[i]           = (c->vBuffer[i] + sample) * 0.5f;
+                        const float depth       = dspu::lerp(fOldDepth, fDepth, s);
+                        c->vBuffer[i]           = (c->vBuffer[i] + sample * depth) * 0.5f;
 
                         // Update current phase
                         phase                   = (phase + dspu::ilerp(sLfo.nOldPhaseStep, sLfo.nPhaseStep, s)) & PHASE_MASK;
@@ -800,8 +815,6 @@ namespace lsp
                     }
 
 //                    dsp::add2(c->vBuffer, vBuffer);
-
-                    // TODO: process feedback
 
                     // Apply output equalizer
                     c->sEq.process(c->vBuffer, c->vBuffer, to_do);
@@ -855,8 +868,9 @@ namespace lsp
                 }
 
                 // Commit values
-
-//                nOldFeedDelay       = nFeedDelay;
+                nOldFeedDelay       = nFeedDelay;
+                fOldFeedGain        = fFeedGain;
+                fOldDepth           = fDepth;
                 sLfo.fOldMinFreq    = sLfo.fMinFreq;
                 sLfo.fOldMaxFreq    = sLfo.fMaxFreq;
                 fOldInGain          = fInGain;

@@ -130,6 +130,7 @@ namespace lsp
 
             // Tempo/rate controls
             LOG_CONTROL("rate", "Rate", U_HZ, phaser::RATE),
+            AMP_GAIN10("depth", "Depth", GAIN_AMP_0_DB),
             CONTROL("frac", "Time fraction", U_BAR, phaser::FRACTION),
             CONTROL("denom", "Time fraction denominator", U_BAR, phaser::DENOMINATOR),
             CONTROL("tempo", "Tempo", U_BPM, phaser::TEMPO),
@@ -200,6 +201,7 @@ namespace lsp
 
             // Tempo/rate controls
             LOG_CONTROL("rate", "Rate", U_HZ, phaser::RATE),
+            AMP_GAIN10("depth", "Depth", GAIN_AMP_0_DB),
             CONTROL("frac", "Time fraction", U_BAR, phaser::FRACTION),
             CONTROL("denom", "Time fraction denominator", U_BAR, phaser::DENOMINATOR),
             CONTROL("tempo", "Tempo", U_BPM, phaser::TEMPO),

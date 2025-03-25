@@ -126,6 +126,7 @@ namespace lsp
             fRate               = 0.0f;
             nCrossfade          = 0;
             fCrossfade          = 0.0f;
+            fRevCrossfade       = 0.0f;
             pCrossfadeFunc      = NULL;
             fOldInGain          = GAIN_AMP_0_DB;
             fInGain             = fOldInGain;
@@ -229,8 +230,11 @@ namespace lsp
 
                     f->sAllpass[0]          = 0.0f;
                     f->sAllpass[1]          = 0.0f;
+                    f->sAllpass[2]          = 0.0f;
+                    f->sAllpass[3]          = 0.0f;
 
                     f->nPhase               = 0;
+                    f->nActPhase            = 0;
                     f->fNormShift           = 0.0f;
                     f->fNormScale           = 0.0f;
                     f->fOutPhase            = 0.0f;
@@ -424,6 +428,17 @@ namespace lsp
                 c->sBypass.init(sr);
                 c->sFeedback.init(max_feedback + BUFFER_SIZE*2);
                 c->sEq.set_sample_rate(sr);
+
+                // Reset all-pass filters memory
+                for (size_t j=0; j<meta::phaser::FILTERS_MAX; ++j)
+                {
+                    filter_t *f             = &c->vFilters[j];
+
+                    f->sAllpass[0]          = 0.0f;
+                    f->sAllpass[1]          = 0.0f;
+                    f->sAllpass[2]          = 0.0f;
+                    f->sAllpass[3]          = 0.0f;
+                }
             }
         }
 
@@ -492,6 +507,7 @@ namespace lsp
             fFeedGain               = (pFeedPhase->value() >= 0.5f) ? -feed_gain : feed_gain;
             nCrossfade              = float(PHASE_MAX) * crossfade * 2.0f;
             fCrossfade              = PHASE_COEFF * (1.0f - crossfade);
+            fRevCrossfade           = (fCrossfade > 0.0f) ? 1.0f / float(nCrossfade) : 0.0f;
             pCrossfadeFunc          = (int(pCrossfadeType->value()) == 0) ? dspu::lerp : dspu::qlerp;
 
             // LFO setup
@@ -727,14 +743,36 @@ namespace lsp
                             filter_t *f             = &c->vFilters[j];
                             uint32_t i_phase        = (phase + lfo_phase + f->nPhase) & PHASE_MASK;
                             const float o_phase     = i_phase * fCrossfade;
-                            const float c_phase     = o_phase * sLfo.fArg[0] + sLfo.fArg[1];
-                            const float c_func      = f->fNormScale * sLfo.pFunc(c_phase) + f->fNormShift;
-                            const float c_freq      = dspu::quick_elerp(fmin[i], fmax[i], c_func);
+                            float c_phase           = o_phase * sLfo.fArg[0] + sLfo.fArg[1];
+                            float c_func            = f->fNormScale * sLfo.pFunc(c_phase) + f->fNormShift;
+                            float c_freq            = dspu::quick_elerp(fmin[i], fmax[i], c_func);
 
-                            // Apply filter processing
-                            sample                  = process_allpass(f->sAllpass, c_freq, sample);
+                            // Check if LFO went to the next round
+                            if (f->nActPhase > i_phase)
+                            {
+                                f->sAllpass[2]          = f->sAllpass[0];
+                                f->sAllpass[3]          = f->sAllpass[1];
+                                f->sAllpass[0]          = 0.0f;
+                                f->sAllpass[1]          = 0.0f;
+                            }
+                            f->nActPhase            = i_phase;
 
-                            // TODO: process cross-fade
+                            // Perform cross-fade
+                            if (i_phase < nCrossfade)
+                            {
+                                const float new_sample  = process_allpass(&f->sAllpass[0], c_freq, sample);
+                                const float mix         = float(i_phase) * fRevCrossfade;
+                                i_phase                 = i_phase + PHASE_MAX;
+                                c_phase                 = i_phase * fCrossfade * sLfo.fArg[0] + sLfo.fArg[1];
+                                c_func                  = f->fNormScale * sLfo.pFunc(c_phase) + f->fNormShift;
+                                c_freq                  = dspu::quick_elerp(fmin[i], fmax[i], c_func);
+
+                                const float old_sample  = process_allpass(&f->sAllpass[2], c_freq, sample);
+
+                                sample                  = pCrossfadeFunc(old_sample, new_sample, mix);
+                            }
+                            else
+                                sample                  = process_allpass(&f->sAllpass[0], c_freq, sample);
                         }
 
                         // Add processed sample to the original one

@@ -46,8 +46,9 @@ namespace lsp
 
                 typedef struct filter_t
                 {
-                    float                   sAllpass[2];        // Allpass filter data
+                    float                   sAllpass[4];        // Allpass filter data
                     uint32_t                nPhase;             // Phase shift relative to global LFO
+                    uint32_t                nActPhase;          // Actual phase of LFG
                     float                   fNormShift;         // Normalized shift
                     float                   fNormScale;         // Normalized scale
                     float                   fOutPhase;          // Output phase value
@@ -131,6 +132,7 @@ namespace lsp
                 float                   fRate;              // Rate
                 uint32_t                nCrossfade;         // Cross-fade threshold
                 float                   fCrossfade;         // Cross-fade coefficient
+                float                   fRevCrossfade;      // Reverse cross-fade coefficient
                 mix_func_t              pCrossfadeFunc;     // Cross-fade function
                 float                   fOldInGain;         // Old input gain
                 float                   fInGain;            // Input gain

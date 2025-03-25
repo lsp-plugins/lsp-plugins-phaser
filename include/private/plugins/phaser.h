@@ -135,7 +135,6 @@ namespace lsp
                 uint32_t                nCrossfade;         // Cross-fade threshold
                 float                   fCrossfade;         // Cross-fade coefficient
                 float                   fRevCrossfade;      // Reverse cross-fade coefficient
-                mix_func_t              pCrossfadeFunc;     // Cross-fade function
                 float                   fOldInGain;         // Old input gain
                 float                   fInGain;            // Input gain
                 float                   fOldDryGain;        // Old dry gain
@@ -170,7 +169,6 @@ namespace lsp
                 plug::IPort            *pFilters;           // Number of filters used
                 plug::IPort            *pFilterQuality;     // Filter quality
                 plug::IPort            *pCrossfade;         // Crossfade length
-                plug::IPort            *pCrossfadeType;     // Crossfade type
 
                 plug::IPort            *pFeedOn;            // Enable feedback
                 plug::IPort            *pFeedGain;          // Feedback gain

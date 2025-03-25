@@ -129,7 +129,6 @@ namespace lsp
             nCrossfade          = 0;
             fCrossfade          = 0.0f;
             fRevCrossfade       = 0.0f;
-            pCrossfadeFunc      = NULL;
             fOldInGain          = GAIN_AMP_0_DB;
             fInGain             = fOldInGain;
             fOldDryGain         = GAIN_AMP_M_INF_DB;
@@ -166,7 +165,6 @@ namespace lsp
             pFilters            = NULL;
             pFilterQuality      = NULL;
             pCrossfade          = NULL;
-            pCrossfadeType      = NULL;
 
             pFeedOn             = NULL;
             pFeedGain           = NULL;
@@ -304,7 +302,6 @@ namespace lsp
             BIND_PORT(pFilters);
             BIND_PORT(pFilterQuality);
             BIND_PORT(pCrossfade);
-            BIND_PORT(pCrossfadeType);
 
             BIND_PORT(sLfo.pType);
             BIND_PORT(sLfo.pPeriod);
@@ -514,7 +511,6 @@ namespace lsp
             nCrossfade              = float(PHASE_MAX) * crossfade * 2.0f;
             fCrossfade              = PHASE_COEFF * (1.0f - crossfade);
             fRevCrossfade           = (fCrossfade > 0.0f) ? 1.0f / float(nCrossfade) : 0.0f;
-            pCrossfadeFunc          = (int(pCrossfadeType->value()) == 0) ? dspu::lerp : dspu::qlerp;
 
             // LFO setup
             const size_t filters    = lsp_min(pFilters->value() + 1, meta::phaser::FILTERS_MAX);
@@ -780,7 +776,7 @@ namespace lsp
 
                                 const float old_sample  = process_allpass(&f->sAllpass[2], c_freq, sample);
 
-                                sample                  = pCrossfadeFunc(old_sample, new_sample, mix);
+                                sample                  = dspu::lerp(old_sample, new_sample, mix);
                             }
                             else
                                 sample                  = process_allpass(&f->sAllpass[0], c_freq, sample);
@@ -843,7 +839,7 @@ namespace lsp
 
                     // Mix dry/wet
                     dsp::lramp2(vBuffer, c->vBuffer, fOldWetGain, fWetGain, to_do);
-                    dsp::lramp_add3(c->vBuffer, vBuffer, c->vBuffer, fOldDryGain*fOldInGain, fDryGain*fInGain, to_do);
+                    dsp::lramp_add3(c->vBuffer, vBuffer, c->vIn, fOldDryGain*fOldInGain, fDryGain*fInGain, to_do);
                     c->pOutLevel->set_value(dsp::abs_max(c->vBuffer, to_do));
                 }
 

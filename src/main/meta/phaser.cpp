@@ -64,13 +64,6 @@ namespace lsp
             { NULL, NULL }
         };
 
-        static const port_item_t crossfade_type[] =
-        {
-            { "Linear",                 "fade.linear"                       },
-            { "Const Power",            "fade.const_power"                  },
-            { NULL, NULL }
-        };
-
         static const port_item_t rate_type[] =
         {
             { "Rate",                   "phaser.rate.rate"                  },
@@ -142,7 +135,6 @@ namespace lsp
             COMBO("filters", "Number of filters", phaser::FILTERS_DFL, filters_list),
             LOG_CONTROL("qfactor", "Filter quality (Q factor)", U_NONE, phaser::FILTER_QUALITY),
             CONTROL("xfade", "Crossfade", U_PERCENT, phaser::CROSSFADE),
-            COMBO("xtype", "Crossfade Type", 1, crossfade_type),
             COMBO("lt", "LFO type", 1, osc_functions),
             COMBO("lp", "LFO period", 0, osc_periods),
             CONTROL("lo", "LFO overlap", U_PERCENT, phaser::OVERLAP),
@@ -213,7 +205,6 @@ namespace lsp
             COMBO("filters", "Number of filters", phaser::FILTERS_DFL - phaser::FILTERS_MIN, filters_list),
             LOG_CONTROL("qfactor", "Filter quality (Q factor)", U_NONE, phaser::FILTER_QUALITY),
             CONTROL("xfade", "Crossfade", U_PERCENT, phaser::CROSSFADE),
-            COMBO("xtype", "Crossfade Type", 1, crossfade_type),
             COMBO("type", "LFO type", 1, osc_functions),
             COMBO("period", "LFO period", 0, osc_periods),
             CONTROL("lo", "LFO overlap", U_PERCENT, phaser::OVERLAP),

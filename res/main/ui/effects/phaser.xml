@@ -69,16 +69,12 @@
 				<cell cols="3"><hsep pad.v="2" bg.color="bg" vreduce="true"/></cell>
 
 				<!-- Crossfade -->
-				<grid rows="3" cols="2" fill="false" pad.t="4">
+				<grid rows="2" cols="2" fill="false" pad.t="4">
 					<cell rows="2">
 						<knob id="xfade"/>
 					</cell>
 					<label text="labels.lfo.crossfade"/>
 					<value id="xfade" same_line="true"/>
-					
-					<cell cols="2">
-						<combo id="xtype" fill="false" pad.h="6" pad.v="4" />
-					</cell>
 				</grid>
 				<vsep pad.h="2" bg.color="bg" hreduce="true"/>
 				

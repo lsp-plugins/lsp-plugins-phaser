@@ -493,6 +493,9 @@ namespace lsp
             if (fRate != rate)
                 bUpdateFilters              = true;
 
+            // Update state of the 'reset' trigger
+            sReset.submit(pReset->value());
+
             // Update common parameters
             const float dry_gain    = pDryGain->value();
             const float wet_gain    = (pInvPhase->value() < 0.5f) ? pWetGain->value() : -pWetGain->value();
@@ -719,18 +722,17 @@ namespace lsp
 
                 // Compute additional parameters
                 float *fmin             = &vBuffer[0];
-                float *fmax             = &vBuffer[to_do];
+                float *fmax             = &fmin[to_do];
+                float *depth            = &fmax[to_do];
 
                 lerp_frequencies(fmin, sLfo.fOldMinFreq, sLfo.fMinFreq, to_do);
                 lerp_frequencies(fmax, sLfo.fOldMaxFreq, sLfo.fMaxFreq, to_do);
+                dsp::lramp_set1(depth, fOldDepth, fDepth, to_do);
 
                 for (size_t nc = 0; nc < nChannels; ++nc)
                 {
                     channel_t *c            = &vChannels[nc];
                     phase                   = sLfo.nPhase;
-
-                    // Store original buffer contents for mixing with processed data
-//                    dsp::copy(vBuffer, c->vBuffer, to_do);
 
                     // Process each sample in the buffer
                     for (size_t i=0; i<to_do; ++i)
@@ -786,8 +788,7 @@ namespace lsp
                         c->sFeedback.append(sample);
 
                         // Add processed sample to the original one
-                        const float depth       = dspu::lerp(fOldDepth, fDepth, s);
-                        c->vBuffer[i]           = (c->vBuffer[i] + sample * depth) * 0.5f;
+                        c->vBuffer[i]           = c->vBuffer[i] + sample * depth[i];
 
                         // Update current phase
                         phase                   = (phase + dspu::ilerp(sLfo.nOldPhaseStep, sLfo.nPhaseStep, s)) & PHASE_MASK;
@@ -809,8 +810,6 @@ namespace lsp
                             f->fOutFreq             = c_freq;
                         }
                     }
-
-//                    dsp::add2(c->vBuffer, vBuffer);
 
                     // Apply output equalizer
                     c->sEq.process(c->vBuffer, c->vBuffer, to_do);

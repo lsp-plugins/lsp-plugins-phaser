@@ -206,10 +206,10 @@
 						<mesh id="lgr" x.index="0" y.index="${i}" width="3" color="graph_mesh" smooth="true" visibility="(${:i-1} ile :filters) and ((!ex :atype) or (:atype ieq 0))"/>
 					</ui:for>
 					<ui:for id="i" first="1" count="8">
-						<mesh id="lgr" x.index="0" y.index="${i}" width="3" color="(ex :ms and :ms) ? 'mid' : 'left'" smooth="true" visibility="(${:i-1} ile :filters) and ((!ex :atype) or (:atype ine 0))"/>
+						<mesh id="lgr" x.index="0" y.index="${i}" width="3" color="(ex :ms and :ms) ? 'mid' : 'left'" smooth="true" visibility="(${:i-1} ile :filters) and ((ex :atype) and (:atype ine 0))"/>
 					</ui:for>
 					<ui:for id="i" first="1" count="8">
-						<mesh id="lgr" x.index="0" y.index="${:i+1} + :filters" width="3" color="(ex :ms and :ms) ? 'side' : 'right'" smooth="true" visibility="(${:i-1} ile :filters) and ((!ex :atype) or (:atype ine 0))"/>
+						<mesh id="lgr" x.index="0" y.index="${:i+1} + :filters" width="3" color="(ex :ms and :ms) ? 'side' : 'right'" smooth="true" visibility="(${:i-1} ile :filters) and ((ex :atype) and (:atype ine 0))"/>
 					</ui:for>
 	
 					<!-- Markers -->

@@ -141,11 +141,11 @@ namespace lsp
             TRIGGER("reset", "Reset phase to initial value"),
 
             // LFO settings
-            COMBO("filters", "Number of filters", phaser::FILTERS_DFL, filters_list),
+            COMBO("filters", "Number of filters", phaser::FILTERS_DFL - phaser::FILTERS_MIN, filters_list),
             LOG_CONTROL("qfactor", "Filter quality (Q factor)", U_NONE, phaser::FILTER_QUALITY),
             CONTROL("xfade", "Crossfade", U_PERCENT, phaser::CROSSFADE),
-            COMBO("lt", "LFO type", 1, osc_functions),
-            COMBO("lp", "LFO period", 0, osc_periods),
+            COMBO("type", "LFO type", 1, osc_functions),
+            COMBO("period", "LFO period", 0, osc_periods),
             CONTROL("lo", "LFO overlap", U_PERCENT, phaser::OVERLAP),
             LOG_CONTROL_DFL("lfs", "LFO frequency start", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_START),
             LOG_CONTROL_DFL("lfe", "LFO frequency end", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_END),

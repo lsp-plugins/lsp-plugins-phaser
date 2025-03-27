@@ -26,6 +26,7 @@
 #include <lsp-plug.in/dsp-units/units.h>
 #include <lsp-plug.in/plug-fw/meta/func.h>
 #include <lsp-plug.in/shared/debug.h>
+#include <lsp-plug.in/shared/id_colors.h>
 
 #include <private/plugins/phaser.h>
 
@@ -142,6 +143,7 @@ namespace lsp
 
             bMS                 = false;
             bMono               = false;
+            bCustomLfo          = false;
             bUpdateFilters      = true;
 
             // Ports
@@ -176,6 +178,8 @@ namespace lsp
             pWetGain            = NULL;
             pDryWet             = NULL;
             pOutGain            = NULL;
+
+            pIDisplay           = NULL;
 
             pData               = NULL;
         }
@@ -378,6 +382,13 @@ namespace lsp
                     c->sEq.destroy();
                 }
                 vChannels   = NULL;
+            }
+
+            // Destroy inline display buffer
+            if (pIDisplay != NULL)
+            {
+                pIDisplay->destroy();
+                pIDisplay   = NULL;
             }
 
             // Free previously allocated data chunk
@@ -946,6 +957,127 @@ namespace lsp
         void phaser::ui_activated()
         {
             sLfo.bSyncMesh          = true;
+        }
+
+        bool phaser::inline_display(plug::ICanvas *cv, size_t width, size_t height)
+        {
+            // Check proportions
+            if (height > width)
+                height  = width;
+
+            // Init canvas
+            if (!cv->init(width, height))
+                return false;
+            width   = cv->width();
+            height  = cv->height();
+
+            // Clear background
+            bool bypassing = vChannels[0].sBypass.bypassing();
+            cv->set_color_rgb((bypassing) ? CV_DISABLED : CV_BACKGROUND);
+            cv->paint();
+
+            // Draw horizontal and vertical lines
+            cv->set_line_width(1.0);
+            cv->set_color_rgb((bypassing) ? CV_SILVER: CV_YELLOW, 0.5f);
+            for (size_t i=1; i < 8; ++i)
+            {
+                float y = (float(i) * (45.0f / 360.0f)) * height;
+                float x = float(i) * 0.125f * width;
+                cv->line(0, y, width, y);
+                cv->line(x, 0, x, height);
+            }
+
+            // Reuse display
+            size_t count        = lsp_max(width, height);
+            pIDisplay           = core::IDBuffer::reuse(pIDisplay, 2, count);
+            core::IDBuffer *b   = pIDisplay;
+            if (b == NULL)
+                return false;
+
+            static const uint32_t c_colors[] = {
+                CV_MIDDLE_CHANNEL,
+                CV_LEFT_CHANNEL, CV_RIGHT_CHANNEL,
+                CV_MIDDLE_CHANNEL, CV_SIDE_CHANNEL
+            };
+
+            const uint32_t *colors  = &c_colors[0];
+            size_t lines            = 1;
+            if ((nChannels > 1) && (bCustomLfo))
+            {
+                colors  = (bMS) ? &c_colors[3] : &c_colors[1];
+                lines   = 2;
+            }
+
+            bool aa = cv->set_anti_aliasing(true);
+            lsp_finally { cv->set_anti_aliasing(aa); };
+
+            cv->set_line_width(2);
+
+            dsp::lramp_set1(b->v[1], 0.0f, height-1, count);
+
+            for (size_t i=0; i<lines; ++i)
+            {
+//                const channel_t *c  = &vChannels[i];
+
+                for (size_t j=0; j<count; ++j)
+                {
+                    const size_t k      = (j * meta::phaser::LFO_MESH_SIZE) / count;
+                    b->v[0][j]          = sLfo.vLfoMesh[k] * width;
+                }
+
+                // Draw mesh
+                const uint32_t color    = (bypassing || !(active())) ? CV_SILVER : colors[i];
+                cv->set_color_rgb(color);
+                cv->draw_lines(b->v[0], b->v[1], count);
+            }
+
+            // Draw dots with lines
+            if (active())
+            {
+                colors  = (nChannels <= 1) ? &c_colors[0] :
+                          (bMS) ? &c_colors[3] : &c_colors[1];
+                cv->set_line_width(1);
+
+                // Draw lines first
+                for (size_t i=0; i<nChannels; ++i)
+                {
+                    const channel_t *c  = &vChannels[i];
+
+                    for (size_t j=0; j<lines; ++j)
+                    {
+                        const filter_t *f   = &c->vFilters[j];
+                        const float x       = f->fOutShift * width;
+
+                        cv->set_color_rgb(colors[i]);
+                        cv->line(x, 0, x, height);
+                    }
+                }
+
+                // Draw dots next
+                for (size_t i=0; i<nChannels; ++i)
+                {
+                    const channel_t *c  = &vChannels[i];
+
+                    const uint32_t color = (bypassing) ? CV_SILVER : colors[i];
+                    Color c1(color), c2(color);
+                    c2.alpha(0.9f);
+
+                    for (size_t j=0; j<nFilters; ++j)
+                    {
+                        const filter_t *f   = &c->vFilters[j];
+                        const float x       = f->fOutShift * width;
+                        const float y       = f->fOutPhase * height;
+
+                        cv->radial_gradient(x, y, c1, c2, 12);
+                        cv->set_color_rgb(0);
+                        cv->circle(x, y, 4);
+                        cv->set_color_rgb(color);
+                        cv->circle(x, y, 3);
+                    }
+                }
+            }
+
+            return true;
         }
 
         void phaser::dump(dspu::IStateDumper *v) const

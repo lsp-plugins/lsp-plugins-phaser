@@ -28,6 +28,7 @@
 #include <lsp-plug.in/dsp-units/misc/lfo.h>
 #include <lsp-plug.in/dsp-units/util/Delay.h>
 #include <lsp-plug.in/dsp-units/util/RingBuffer.h>
+#include <lsp-plug.in/plug-fw/core/IDBuffer.h>
 #include <lsp-plug.in/plug-fw/plug.h>
 #include <lsp-plug.in/dsp/dsp.h>
 #include <private/meta/phaser.h>
@@ -147,6 +148,7 @@ namespace lsp
                 uint32_t                nFeedDelay;         // Feed-back delay
                 bool                    bMS;                // Mid/Side mode
                 bool                    bMono;              // Mono mode
+                bool                    bCustomLfo;         // Custom LFO shape for second channel
                 bool                    bUpdateFilters;     // Update filters
 
                 plug::IPort            *pBypass;            // Bypass switch
@@ -181,6 +183,8 @@ namespace lsp
                 plug::IPort            *pDryWet;            // Dry/wet balance
                 plug::IPort            *pOutGain;           // Output gain
 
+                core::IDBuffer         *pIDisplay;          // Inline display buffer
+
                 uint8_t                *pData;              // Allocated data
 
             protected:
@@ -209,6 +213,7 @@ namespace lsp
                 virtual void            update_settings() override;
                 virtual void            process(size_t samples) override;
                 virtual void            ui_activated() override;
+                virtual bool            inline_display(plug::ICanvas *cv, size_t width, size_t height) override;
                 virtual void            dump(dspu::IStateDumper *v) const override;
         };
 

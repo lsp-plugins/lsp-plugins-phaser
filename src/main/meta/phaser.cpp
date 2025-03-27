@@ -38,22 +38,31 @@ namespace lsp
 {
     namespace meta
     {
+        #define LFO_LIST \
+            { "Triangular",             "phaser.osc.triangular"             }, \
+            { "Sine",                   "phaser.osc.sine"                   }, \
+            { "Stepped Sine",           "phaser.osc.stepped_sine"           }, \
+            { "Cubic",                  "phaser.osc.cubic"                  }, \
+            { "Stepped Cubic",          "phaser.osc.stepped_cubic"          }, \
+            { "Parabolic",              "phaser.osc.parabolic"              }, \
+            { "Reverse Parabolic",      "phaser.osc.reverse_parabolic"      }, \
+            { "Logarithmic",            "phaser.osc.logarithmic"            }, \
+            { "Reverse Logarithmic",    "phaser.osc.reverse_logarithmic"    }, \
+            { "Square Root",            "phaser.osc.square_root"            }, \
+            { "Reverse Square Root",    "phaser.osc.reverse_square_root"    }, \
+            { "Circular",               "phaser.osc.circular"               }, \
+            { "Reverse Circular",       "phaser.osc.reverse_circular"       }, \
+            { NULL, NULL }
+
         static const port_item_t osc_functions[] =
         {
-            { "Triangular",             "phaser.osc.triangular"             },
-            { "Sine",                   "phaser.osc.sine"                   },
-            { "Stepped Sine",           "phaser.osc.stepped_sine"           },
-            { "Cubic",                  "phaser.osc.cubic"                  },
-            { "Stepped Cubic",          "phaser.osc.stepped_cubic"          },
-            { "Parabolic",              "phaser.osc.parabolic"              },
-            { "Reverse Parabolic",      "phaser.osc.reverse_parabolic"      },
-            { "Logarithmic",            "phaser.osc.logarithmic"            },
-            { "Reverse Logarithmic",    "phaser.osc.reverse_logarithmic"    },
-            { "Square Root",            "phaser.osc.square_root"            },
-            { "Reverse Square Root",    "phaser.osc.reverse_square_root"    },
-            { "Circular",               "phaser.osc.circular"               },
-            { "Reverse Circular",       "phaser.osc.reverse_circular"       },
-            { NULL, NULL }
+            LFO_LIST
+        };
+
+        static const port_item_t additional_osc_functions[] =
+        {
+            { "Same",               "phaser.osc.same"                   },
+            LFO_LIST
         };
 
         static const port_item_t osc_periods[] =
@@ -207,13 +216,15 @@ namespace lsp
             CONTROL("xfade", "Crossfade", U_PERCENT, phaser::CROSSFADE),
             COMBO("type", "LFO type", 1, osc_functions),
             COMBO("period", "LFO period", 0, osc_periods),
+            COMBO("atype", "Additional LFO type", 0, additional_osc_functions),
+            COMBO("aperiod", "Additional LFO period", 0, osc_periods),
             CONTROL("lo", "LFO overlap", U_PERCENT, phaser::OVERLAP),
             LOG_CONTROL_DFL("lfs", "LFO frequency start", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_START),
             LOG_CONTROL_DFL("lfe", "LFO frequency end", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_END),
             CYC_CONTROL("lip", "LFO initial phase", U_DEG, phaser::PHASE),
             CYC_CONTROL("lfp", "Inter-filter phase range", U_DEG, phaser::FILTER_PHASE),
             CYC_CONTROL("lcp", "Inter-channel phase", U_DEG, phaser::CHANNEL_PHASE),
-            MESH("lgr", "LFO graph", phaser::FILTERS_MAX + 1, phaser::LFO_MESH_SIZE),
+            MESH("lgr", "LFO graph", phaser::FILTERS_MAX * 2 + 1, phaser::LFO_MESH_SIZE),
 
             // Feedback chain
             SWITCH("fb_on", "Feedback on", 0),

@@ -87,8 +87,7 @@ namespace lsp
             // Cleanup data
             vChannels           = NULL;
 
-            sLfo.nType          = -1;
-            sLfo.nPeriod        = -1;
+
             sLfo.fOverlap       = 0.0f;
             sLfo.fOldMinFreq    = meta::phaser::LFO_FREQ_START;
             sLfo.fMinFreq       = meta::phaser::LFO_FREQ_START;
@@ -101,16 +100,9 @@ namespace lsp
             sLfo.nPhaseStep     = 0;
             sLfo.fIFilterPhase  = 0.0f;
             sLfo.fIChanPhase    = 0;
-            sLfo.fArg[0]        = 0;
-            sLfo.fArg[1]        = 0;
-
-            sLfo.pFunc          = NULL;
-            sLfo.vLfoMesh       = NULL;
 
             sLfo.bSyncMesh      = true;
 
-            sLfo.pType          = NULL;
-            sLfo.pPeriod        = NULL;
             sLfo.pOverlap       = NULL;
             sLfo.pMinFreq       = NULL;
             sLfo.pMaxFreq       = NULL;
@@ -202,7 +194,7 @@ namespace lsp
                 szof_channels +         // vChannels
                 buf_sz * 4 +            // vBuffer
                 mesh_buf_sz +           // vLfoPhase
-                mesh_buf_sz +           // lfo_t::vLfoMesh
+                mesh_buf_sz * 2 +       // channel_t::vLfoMesh
                 nChannels * buf_sz;     // channel_t::vBuffer
 
             // Allocate memory-aligned data
@@ -215,7 +207,6 @@ namespace lsp
             vChannels               = advance_ptr_bytes<channel_t>(ptr, szof_channels);
             vBuffer                 = advance_ptr_bytes<float>(ptr, buf_sz * 4);
             vLfoPhase               = advance_ptr_bytes<float>(ptr, mesh_buf_sz);
-            sLfo.vLfoMesh           = advance_ptr_bytes<float>(ptr, mesh_buf_sz);
 
             // Initialize channels
             for (size_t i=0; i<nChannels; ++i)
@@ -251,6 +242,13 @@ namespace lsp
                     f->pOutFreq             = NULL;
                 }
 
+                c->nLfoType             = -1;
+                c->nLfoPeriod           = -1;
+                c->vLfoArg[0]           = 0;
+                c->vLfoArg[1]           = 0;
+                c->pLfoFunc             = NULL;
+                c->vLfoMesh             = advance_ptr_bytes<float>(ptr, mesh_buf_sz);
+
                 c->vIn                  = NULL;
                 c->vOut                 = NULL;
                 c->vBuffer              = advance_ptr_bytes<float>(ptr, buf_sz);
@@ -259,6 +257,8 @@ namespace lsp
                 c->pOut                 = NULL;
                 c->pInLevel             = NULL;
                 c->pOutLevel            = NULL;
+                c->pLfoType             = NULL;
+                c->pLfoPeriod           = NULL;
             }
 
             lsp_assert(ptr <= &save[to_alloc]);
@@ -307,8 +307,13 @@ namespace lsp
             BIND_PORT(pFilterQuality);
             BIND_PORT(pCrossfade);
 
-            BIND_PORT(sLfo.pType);
-            BIND_PORT(sLfo.pPeriod);
+            for (size_t i=0; i<nChannels; ++i)
+            {
+                channel_t *c = &vChannels[i];
+                BIND_PORT(c->pLfoType);
+                BIND_PORT(c->pLfoPeriod);
+            }
+
             BIND_PORT(sLfo.pOverlap);
             BIND_PORT(sLfo.pMinFreq);
             BIND_PORT(sLfo.pMaxFreq);
@@ -583,47 +588,62 @@ namespace lsp
             }
 
             // Update LFO preferences
-            const size_t lfo_type   = size_t(sLfo.pType->value());
-            const size_t lfo_period = size_t(sLfo.pPeriod->value());
+            bool custom_lfo         = false;
+
+            for (size_t i=0; i<nChannels; ++i)
+            {
+                channel_t *c            = &vChannels[i];
+
+                // Update LFO preferences
+                size_t lfo_type         = size_t(c->pLfoType->value());
+                size_t lfo_period       = size_t(c->pLfoPeriod->value());
+                if (i > 0)
+                {
+                    custom_lfo              = lfo_type > 0;
+                    if (!custom_lfo)
+                        lfo_period              = vChannels[0].nLfoPeriod;
+                    lfo_type                = (custom_lfo) ? lfo_type - 1 : vChannels[0].nLfoType;
+                }
+
+                // The form of the LFO has changed?
+                if ((lfo_type != c->nLfoType) || (lfo_period != c->nLfoPeriod))
+                {
+                    c->nLfoType             = lfo_type;
+                    c->nLfoPeriod           = lfo_period;
+                    c->pLfoFunc             = all_lfo_functions[lfo_type];
+                    sLfo.bSyncMesh          = true;
+
+                    // Select the function coefficients
+                    switch (lfo_period)
+                    {
+                        case meta::phaser::OSC_FIRST:
+                            c->vLfoArg[0]       = 0.5f;
+                            c->vLfoArg[1]       = 0.0f;
+                            break;
+                        case meta::phaser::OSC_LAST:
+                            c->vLfoArg[0]       = 0.5f;
+                            c->vLfoArg[1]       = 0.5f;
+                            break;
+                        case meta::phaser::OSC_FULL:
+                        default:
+                            c->vLfoArg[0]       = 1.0f;
+                            c->vLfoArg[1]       = 0.0f;
+                            break;
+                    }
+
+                    // Update LFO image
+                    float k                 = c->vLfoArg[0] / (meta::phaser::LFO_MESH_SIZE - 1);
+                    for (size_t j=0; j<meta::phaser::LFO_MESH_SIZE; ++j)
+                        c->vLfoMesh[j]          = c->pLfoFunc(j * k + c->vLfoArg[1]);
+                }
+            }
+
             const float freq_limit  = fSampleRate * 0.49f;
+            sLfo.nInitPhase         = phase_to_int(sLfo.pInitPhase->value());
             sLfo.fOldMinFreq        = lsp_min(sLfo.fOldMinFreq, freq_limit);
             sLfo.fMinFreq           = lsp_min(sLfo.pMinFreq->value(), freq_limit);
             sLfo.fOldMaxFreq        = lsp_min(sLfo.fOldMaxFreq, freq_limit);
             sLfo.fMaxFreq           = lsp_min(sLfo.pMaxFreq->value(), freq_limit);
-
-            // The form of the LFO has changed?
-            if ((lfo_type != sLfo.nType) || (lfo_period != sLfo.nPeriod))
-            {
-                sLfo.nType              = lfo_type;
-                sLfo.nPeriod            = lfo_period;
-                sLfo.pFunc              = all_lfo_functions[lfo_type];
-                sLfo.bSyncMesh          = true;
-
-                // Select the function coefficients
-                switch (lfo_period)
-                {
-                    case meta::phaser::OSC_FIRST:
-                        sLfo.fArg[0]        = 0.5f;
-                        sLfo.fArg[1]        = 0.0f;
-                        break;
-                    case meta::phaser::OSC_LAST:
-                        sLfo.fArg[0]        = 0.5f;
-                        sLfo.fArg[1]        = 0.5f;
-                        break;
-                    case meta::phaser::OSC_FULL:
-                    default:
-                        sLfo.fArg[0]        = 1.0f;
-                        sLfo.fArg[1]        = 0.0f;
-                        break;
-                }
-
-                // Update LFO image
-                float k                 = sLfo.fArg[0] / (meta::phaser::LFO_MESH_SIZE - 1);
-                for (size_t j=0; j<meta::phaser::LFO_MESH_SIZE; ++j)
-                    sLfo.vLfoMesh[j]        = sLfo.pFunc(j * k + sLfo.fArg[1]);
-            }
-
-            sLfo.nInitPhase         = phase_to_int(sLfo.pInitPhase->value());
 
             // Update channels
             for (size_t i=0; i<nChannels; ++i)
@@ -660,6 +680,7 @@ namespace lsp
             }
 
             bMS                     = mid_side;
+            bCustomLfo              = custom_lfo;
             bMono                   = (pMono != NULL) ? pMono->value() >= 0.5f : false;
         }
 
@@ -763,8 +784,8 @@ namespace lsp
                             filter_t *f             = &c->vFilters[j];
                             uint32_t i_phase        = (phase + lfo_phase + f->nPhase) & PHASE_MASK;
                             const float o_phase     = i_phase * fCrossfade;
-                            float c_phase           = o_phase * sLfo.fArg[0] + sLfo.fArg[1];
-                            float c_func            = f->fNormScale * sLfo.pFunc(c_phase) + f->fNormShift;
+                            float c_phase           = o_phase * c->vLfoArg[0] + c->vLfoArg[1];
+                            float c_func            = f->fNormScale * c->pLfoFunc(c_phase) + f->fNormShift;
                             float c_freq            = dspu::quick_elerp(fmin[i], fmax[i], c_func);
 
                             // Check if LFO went to the next round
@@ -783,8 +804,8 @@ namespace lsp
                                 const float new_sample  = process_allpass(&f->sAllpass[0], c_freq, sample);
                                 const float mix         = float(i_phase) * fRevCrossfade;
                                 i_phase                 = i_phase + PHASE_MAX;
-                                c_phase                 = i_phase * fCrossfade * sLfo.fArg[0] + sLfo.fArg[1];
-                                c_func                  = f->fNormScale * sLfo.pFunc(c_phase) + f->fNormShift;
+                                c_phase                 = i_phase * fCrossfade * c->vLfoArg[0] + c->vLfoArg[1];
+                                c_func                  = f->fNormScale * c->pLfoFunc(c_phase) + f->fNormShift;
                                 c_freq                  = dspu::quick_elerp(fmin[i], fmax[i], c_func);
 
                                 const float old_sample  = process_allpass(&f->sAllpass[2], c_freq, sample);
@@ -812,8 +833,8 @@ namespace lsp
                             filter_t *f             = &c->vFilters[j];
                             uint32_t i_phase        = (phase + sLfo.nInitPhase + f->nPhase) & PHASE_MASK;
                             const float o_phase     = i_phase * fCrossfade;
-                            const float c_phase     = o_phase * sLfo.fArg[0] + sLfo.fArg[1];
-                            const float c_func      = f->fNormScale * sLfo.pFunc(c_phase) + f->fNormShift;
+                            const float c_phase     = o_phase * c->vLfoArg[0] + c->vLfoArg[1];
+                            const float c_func      = f->fNormScale * c->pLfoFunc(c_phase) + f->fNormShift;
                             const float c_freq      = dspu::quick_elerp(sLfo.fMinFreq, sLfo.fMaxFreq, c_func);
 
                             f->fOutPhase            = o_phase;
@@ -934,16 +955,25 @@ namespace lsp
                 plug::mesh_t *mesh      = (sLfo.pMesh != NULL) ? sLfo.pMesh->buffer<plug::mesh_t>() : NULL;
                 if ((mesh != NULL) && (mesh->isEmpty()))
                 {
-                    dsp::copy(mesh->pvData[0], vLfoPhase, meta::phaser::LFO_MESH_SIZE);
+                    size_t index        = 0;
+                    dsp::copy(mesh->pvData[index++], vLfoPhase, meta::phaser::LFO_MESH_SIZE);
 
-                    for (size_t j=0; j<nFilters; ++j)
+                    const size_t lines      = (bCustomLfo) ? 2 : 1;
+                    for (size_t i=0; i<lines; ++i)
                     {
-                        const filter_t *f       = &vChannels[0].vFilters[j];
-                        dsp::mul_k3(mesh->pvData[j+1], sLfo.vLfoMesh, f->fNormScale, meta::phaser::LFO_MESH_SIZE);
-                        dsp::add_k2(mesh->pvData[j+1], f->fNormShift, meta::phaser::LFO_MESH_SIZE);
+                        const channel_t *c      = &vChannels[i];
+
+                        for (size_t j=0; j<nFilters; ++j)
+                        {
+                            const filter_t *f       = &vChannels[0].vFilters[j];
+                            float *data             = mesh->pvData[index++];
+
+                            dsp::mul_k3(data, c->vLfoMesh, f->fNormScale, meta::phaser::LFO_MESH_SIZE);
+                            dsp::add_k2(data, f->fNormShift, meta::phaser::LFO_MESH_SIZE);
+                        }
                     }
 
-                    mesh->data(nFilters + 1, meta::phaser::LFO_MESH_SIZE);
+                    mesh->data(index, meta::phaser::LFO_MESH_SIZE);
 
                     sLfo.bSyncMesh      = false;
                 }
@@ -1017,18 +1047,23 @@ namespace lsp
 
             for (size_t i=0; i<lines; ++i)
             {
-//                const channel_t *c  = &vChannels[i];
+                const channel_t *c  = &vChannels[i];
 
-                for (size_t j=0; j<count; ++j)
+                for (size_t j=0; j<nFilters; ++j)
                 {
-                    const size_t k      = (j * meta::phaser::LFO_MESH_SIZE) / count;
-                    b->v[0][j]          = sLfo.vLfoMesh[k] * width;
-                }
+                    const filter_t *f   = &c->vFilters[j];
 
-                // Draw mesh
-                const uint32_t color    = (bypassing || !(active())) ? CV_SILVER : colors[i];
-                cv->set_color_rgb(color);
-                cv->draw_lines(b->v[0], b->v[1], count);
+                    for (size_t k=0; k<count; ++k)
+                    {
+                        const size_t ind    = (k * meta::phaser::LFO_MESH_SIZE) / count;
+                        b->v[0][k]          = (c->vLfoMesh[ind] * f->fNormScale + f->fNormShift) * width;
+                    }
+
+                    // Draw mesh
+                    const uint32_t color    = (bypassing || !(active())) ? CV_SILVER : colors[i];
+                    cv->set_color_rgb(color);
+                    cv->draw_lines(b->v[0], b->v[1], count);
+                }
             }
 
             // Draw dots with lines

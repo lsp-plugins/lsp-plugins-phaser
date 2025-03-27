@@ -12,13 +12,16 @@
 
 				<!-- Type -->
 				<cell cols="3">
-					<vbox>
-						<label text="labels.lfo.type" pad.v="4"/>
-						<hbox pad.h="6" pad.b="4" hfill="true">
-							<combo id="type" hfill="true"/>
-							<combo id="period" hfill="true" pad.l="6"/>
-						</hbox>
-					</vbox>
+					<grid rows="${ex :in_r ? 3 : 2}" cols="2">
+						<cell cols="2"><label text="labels.lfo.type" pad.v="4"/></cell>
+						<combo id="type" hfill="true"/>
+						<combo id="period" hfill="true" pad.l="6"/>
+						
+						<ui:if test="ex :in_r">
+							<combo id="atype" hfill="true"/>
+							<combo id="aperiod" hfill="true" pad.l="6"/>
+						</ui:if>
+					</grid>
 				</cell>
 				<cell cols="3">
 					<hsep pad.v="2" bg.color="bg" vreduce="true"/>
@@ -199,8 +202,14 @@
 					<axis o="1" min="0" max="100" angle="0.5" visibility="false"/>
 	
 					<!-- Mesh -->
-					<ui:for id="i" first="1" count="16">
-						<mesh id="lgr" x.index="0" y.index="${i}" width="3" color="graph_mesh" smooth="true"/>
+					<ui:for id="i" first="1" count="8">
+						<mesh id="lgr" x.index="0" y.index="${i}" width="3" color="graph_mesh" smooth="true" visibility="(${:i-1} ile :filters) and ((!ex :atype) or (:atype ieq 0))"/>
+					</ui:for>
+					<ui:for id="i" first="1" count="8">
+						<mesh id="lgr" x.index="0" y.index="${i}" width="3" color="(ex :ms and :ms) ? 'mid' : 'left'" smooth="true" visibility="(${:i-1} ile :filters) and ((!ex :atype) or (:atype ine 0))"/>
+					</ui:for>
+					<ui:for id="i" first="1" count="8">
+						<mesh id="lgr" x.index="0" y.index="${:i+1} + :filters" width="3" color="(ex :ms and :ms) ? 'side' : 'right'" smooth="true" visibility="(${:i-1} ile :filters) and ((!ex :atype) or (:atype ine 0))"/>
 					</ui:for>
 	
 					<!-- Markers -->

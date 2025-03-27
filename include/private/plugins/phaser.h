@@ -63,8 +63,6 @@ namespace lsp
 
                 typedef struct lfo_t
                 {
-                    uint32_t                nType;              // LFO type
-                    uint32_t                nPeriod;            // LFO period (full, first half, second half)
                     float                   fOverlap;           // LFO overlapping
                     float                   fOldMinFreq;        // Old minimum frequency
                     float                   fMinFreq;           // Minimum frequency
@@ -77,15 +75,8 @@ namespace lsp
                     uint32_t                nPhaseStep;         // Phase increment
                     float                   fIFilterPhase;      // Inter-filter phase
                     float                   fIChanPhase;        // Inter-channel phase
-                    float                   fArg[2];            // LFO arguments
-
-                    dspu::lfo::function_t   pFunc;              // LFO function
-                    float                  *vLfoMesh;           // LFO mesh amplitude data
-
                     bool                    bSyncMesh;          // Need to synchronize mesh with UI
 
-                    plug::IPort            *pType;              // LFO type
-                    plug::IPort            *pPeriod;            // LFO period
                     plug::IPort            *pOverlap;           // Overlap
                     plug::IPort            *pMinFreq;           // Minimum frequency
                     plug::IPort            *pMaxFreq;           // Maximum frequency
@@ -103,6 +94,12 @@ namespace lsp
                     dspu::Equalizer         sEq;                // Equalizer for processed signal
                     filter_t                vFilters[meta::phaser::FILTERS_MAX];    // Filters
 
+                    size_t                  nLfoType;           // Type of LFO
+                    size_t                  nLfoPeriod;         // LFO period
+                    float                   vLfoArg[2];         // LFO function coefficients (multiplier, adder)
+                    dspu::lfo::function_t   pLfoFunc;           // LFO function
+                    float                  *vLfoMesh;           // LFO mesh amplitude data
+
                     // Parameters
                     float                   *vIn;               // Input buffer
                     float                   *vOut;              // Output buffer
@@ -113,6 +110,8 @@ namespace lsp
                     plug::IPort            *pOut;               // Output port
                     plug::IPort            *pInLevel;           // Input level meter
                     plug::IPort            *pOutLevel;          // Output level meter
+                    plug::IPort            *pLfoType;           // LFO type
+                    plug::IPort            *pLfoPeriod;         // LFO period
                 } channel_t;
 
             protected:

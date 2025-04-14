@@ -18,9 +18,9 @@
 							<combo id="type" hfill="true"/>
 							<combo id="period" hfill="true" pad.l="6"/>
 						</hbox>
-						<hbox pad.h="6" pad.b="4">
-							<combo id="atype" hfill="true" visibility="ex :in_l"/>
-							<combo id="aperiod" hfill="true" visibility="ex :in_l" pad.l="6"/>
+						<hbox pad.h="6" pad.b="4" visibility="ex :in_l">
+							<combo id="atype" hfill="true" />
+							<combo id="aperiod" hfill="true" pad.l="6"/>
 						</hbox>
 					</grid>
 				</cell>

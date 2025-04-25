@@ -1119,7 +1119,129 @@ namespace lsp
         {
             plug::Module::dump(v);
 
-            // TODO
+            v->write("nChannels", nChannels);
+            v->write("nFilters", nFilters);
+
+            v->write_object("sReset", &sReset);
+
+            v->begin_array("vChannels", vChannels, nChannels);
+            {
+                for (size_t i=0; i<nChannels; ++i)
+                {
+                    const channel_t *c = &vChannels[i];
+
+                    v->begin_object(c, sizeof(channel_t));
+                    {
+                        v->write_object("sBypass", &c->sBypass);
+                        v->write_object("sFeedback", &c->sFeedback);
+                        v->write_object("sEq", &c->sEq);
+
+
+                        v->begin_array("vFilters", meta::phaser::FILTERS_MAX);
+                        {
+                            for (size_t j=0; j<meta::phaser::FILTERS_MAX; ++j)
+                            {
+                                const filter_t *f = &c->vFilters[j];
+
+                                v->writev("sAllpass", f->sAllpass, 4);
+                                v->write("nPhase", f->nPhase);
+                                v->write("nActPhase", f->nActPhase);
+                                v->write("fNormShift", f->fNormShift);
+                                v->write("fNormScale", f->fNormScale);
+                                v->write("fOutPhase", f->fOutPhase);
+                                v->write("fOutShift", f->fOutShift);
+                                v->write("fOutFreq", f->fOutFreq);
+
+                                v->write("pPhase", f->pPhase);
+                                v->write("pShift", f->pShift);
+                                v->write("pOutFreq", f->pOutFreq);
+                            }
+                        }
+                        v->end_array();
+
+                        v->write("nLfoType", c->nLfoType);
+                        v->write("nLfoPeriod", c->nLfoPeriod);
+                        v->writev("vLfoArg", c->vLfoArg, 2);
+                        v->write("pLfoFunc", c->pLfoFunc);
+                        v->write("vLfoMesh", c->vLfoMesh);
+
+                        v->write("vIn", c->vIn);
+                        v->write("vOut", c->vOut);
+                        v->write("vBuffer", c->vBuffer);
+
+                        v->write("pIn", c->pIn);
+                        v->write("pOut", c->pOut);
+                        v->write("pInLevel", c->pInLevel);
+                        v->write("pOutLevel", c->pOutLevel);
+                        v->write("pLfoType", c->pLfoType);
+                        v->write("pLfoPeriod", c->pLfoPeriod);
+                    }
+                    v->end_object();
+                }
+            }
+            v->end_array();
+
+            v->begin_object("sLfo", &sLfo, sizeof(lfo_t));
+            v->end_object();
+
+            v->write("vBuffer", vBuffer);
+            v->write("vLfoPhase", vLfoPhase);
+
+            v->write("fRevSampleRate", fRevSampleRate);
+            v->write("fRevQuality", fRevQuality);
+            v->write("fRate", fRate);
+            v->write("fOldDepth", fOldDepth);
+            v->write("fDepth", fDepth);
+            v->write("nCrossfade", nCrossfade);
+            v->write("fRevCrossfade", fRevCrossfade);
+            v->write("fOldInGain", fOldInGain);
+            v->write("fInGain", fInGain);
+            v->write("fOldDryGain", fOldDryGain);
+            v->write("fDryGain", fDryGain);
+            v->write("fOldWetGain", fOldWetGain);
+            v->write("fWetGain", fWetGain);
+            v->write("fOldFeedGain", fOldFeedGain);
+            v->write("fFeedGain", fFeedGain);
+            v->write("nOldFeedDelay", nOldFeedDelay);
+            v->write("nFeedDelay", nFeedDelay);
+            v->write("bMS", bMS);
+            v->write("bMono", bMono);
+            v->write("bCustomLfo", bCustomLfo);
+            v->write("bUpdateFilters", bUpdateFilters);
+
+            v->write("pBypass", pBypass);
+            v->write("pMono", pMono);
+            v->write("pMS", pMS);
+            v->write("pInvPhase", pInvPhase);
+            v->write("pHpfMode", pHpfMode);
+            v->write("pHpfFreq", pHpfFreq);
+            v->write("pLpfMode", pLpfMode);
+            v->write("pLpfFreq", pLpfFreq);
+
+            v->write("pRate", pRate);
+            v->write("pDepth", pDepth);
+            v->write("pFraction", pFraction);
+            v->write("pTempo", pTempo);
+            v->write("pTempoSync", pTempoSync);
+            v->write("pTimeMode", pTimeMode);
+            v->write("pReset", pReset);
+
+            v->write("pFilters", pFilters);
+            v->write("pFilterQuality", pFilterQuality);
+            v->write("pCrossfade", pCrossfade);
+
+            v->write("pFeedOn", pFeedOn);
+            v->write("pFeedGain", pFeedGain);
+            v->write("pFeedDelay", pFeedDelay);
+            v->write("pFeedPhase", pFeedPhase);
+
+            v->write("pInGain", pInGain);
+            v->write("pDryGain", pDryGain);
+            v->write("pWetGain", pWetGain);
+            v->write("pDryWet", pDryWet);
+            v->write("pOutGain", pOutGain);
+
+            v->write("pIDisplay", pIDisplay);
 
             v->write("pData", pData);
         }

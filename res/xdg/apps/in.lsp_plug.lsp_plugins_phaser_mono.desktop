@@ -1,9 +1,11 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=TODO: Template Plugin
-GenericName=TODO: Template Plugin
-Comment=TODO: add description what plugin does
+Name=Phaser Mono
+GenericName=Phaser
+GenericName[ru]=Фейзер
+Comment=This plugin allows to simpulate multi-stage mono phaser effect
+Comment[ru]=Данный плагин позволяет реализовать многоступенчатый моноэффект фейзера
 Exec=lsp-plugins-phaser-mono
 Icon=lsp-plugins
 Terminal=false

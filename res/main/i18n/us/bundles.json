@@ -1,7 +1,7 @@
 {
 	"phaser": {
-		"name": "Plugin Template",
-		"description": "TODO: write description"
+		"name": "Phaser",
+		"description": "This plugin allows to simpulate multi-stage phaser effect"
 	}
 }
 

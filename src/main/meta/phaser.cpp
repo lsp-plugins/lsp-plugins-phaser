@@ -126,12 +126,12 @@ namespace lsp
             // Operating modes
             SWITCH("sphase", "Signal phase switch", 0.0f),
             COMBO("hpm", "High-pass filter mode", 0, filter_slopes),
-            LOG_CONTROL("hpf", "High-pass filter frequency", U_HZ, phaser::HPF),
+            LOG_CONTROL("hpf", "High-pass filter frequency", "HPF freq", U_HZ, phaser::HPF),
             COMBO("lpm", "Low-pass filter mode", 0, filter_slopes),
-            LOG_CONTROL("lpf", "Low-pass filter frequency", U_HZ, phaser::LPF),
+            LOG_CONTROL("lpf", "Low-pass filter frequency", "LPF freq", U_HZ, phaser::LPF),
 
             // Tempo/rate controls
-            LOG_CONTROL("rate", "Rate", U_HZ, phaser::RATE),
+            LOG_CONTROL("rate", "Rate", "Rate", U_HZ, phaser::RATE),
             AMP_GAIN10("depth", "Depth", GAIN_AMP_0_DB),
             CONTROL("frac", "Time fraction", U_BAR, phaser::FRACTION),
             CONTROL("denom", "Time fraction denominator", U_BAR, phaser::DENOMINATOR),
@@ -142,7 +142,7 @@ namespace lsp
 
             // LFO settings
             COMBO("filters", "Number of filters", phaser::FILTERS_DFL - phaser::FILTERS_MIN, filters_list),
-            LOG_CONTROL("qfactor", "Filter quality (Q factor)", U_NONE, phaser::FILTER_QUALITY),
+            LOG_CONTROL("qfactor", "Filter quality (Q factor)", "Q Factor", U_NONE, phaser::FILTER_QUALITY),
             CONTROL("xfade", "Crossfade", U_PERCENT, phaser::CROSSFADE),
             COMBO("type", "LFO type", 1, osc_functions),
             COMBO("period", "LFO period", 0, osc_periods),
@@ -196,12 +196,12 @@ namespace lsp
             SWITCH("ms", "Mid/Side mode switch", 0.0f),
             SWITCH("sphase", "Signal phase switch", 0.0f),
             COMBO("hpm", "High-pass filter mode", 0, filter_slopes),
-            LOG_CONTROL("hpf", "High-pass filter frequency", U_HZ, phaser::HPF),
+            LOG_CONTROL("hpf", "High-pass filter frequency", "HPF freq", U_HZ, phaser::HPF),
             COMBO("lpm", "Low-pass filter mode", 0, filter_slopes),
-            LOG_CONTROL("lpf", "Low-pass filter frequency", U_HZ, phaser::LPF),
+            LOG_CONTROL("lpf", "Low-pass filter frequency", "LPF freq", U_HZ, phaser::LPF),
 
             // Tempo/rate controls
-            LOG_CONTROL("rate", "Rate", U_HZ, phaser::RATE),
+            LOG_CONTROL("rate", "Rate", "Rate", U_HZ, phaser::RATE),
             AMP_GAIN10("depth", "Depth", GAIN_AMP_0_DB),
             CONTROL("frac", "Time fraction", U_BAR, phaser::FRACTION),
             CONTROL("denom", "Time fraction denominator", U_BAR, phaser::DENOMINATOR),
@@ -212,7 +212,7 @@ namespace lsp
 
             // LFO settings
             COMBO("filters", "Number of filters", phaser::FILTERS_DFL - phaser::FILTERS_MIN, filters_list),
-            LOG_CONTROL("qfactor", "Filter quality (Q factor)", U_NONE, phaser::FILTER_QUALITY),
+            LOG_CONTROL("qfactor", "Filter quality (Q factor)", "Q Factor", U_NONE, phaser::FILTER_QUALITY),
             CONTROL("xfade", "Crossfade", U_PERCENT, phaser::CROSSFADE),
             COMBO("type", "LFO type", 1, osc_functions),
             COMBO("period", "LFO period", 0, osc_periods),

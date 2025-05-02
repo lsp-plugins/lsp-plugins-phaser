@@ -789,7 +789,7 @@ namespace lsp
                             float c_freq            = dspu::quick_elerp(fmin[i], fmax[i], c_func);
 
                             // Check if LFO went to the next round
-                            if (f->nActPhase > i_phase)
+                            if ((nCrossfade > 0) && (f->nActPhase > i_phase))
                             {
                                 f->sAllpass[2]          = f->sAllpass[0];
                                 f->sAllpass[3]          = f->sAllpass[1];

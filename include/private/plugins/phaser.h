@@ -49,7 +49,7 @@ namespace lsp
                 {
                     float                   sAllpass[4];        // Allpass filter data
                     uint32_t                nPhase;             // Phase shift relative to global LFO
-                    uint32_t                nActPhase;          // Actual phase of LFG
+                    uint32_t                nActPhase;          // Actual phase of LFO
                     float                   fNormShift;         // Normalized shift
                     float                   fNormScale;         // Normalized scale
                     float                   fOutPhase;          // Output phase value

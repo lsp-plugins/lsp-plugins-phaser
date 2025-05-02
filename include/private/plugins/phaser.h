@@ -143,8 +143,8 @@ namespace lsp
                 float                   fWetGain;           // Wet gain
                 float                   fOldFeedGain;       // Old feedback gain
                 float                   fFeedGain;          // Feed-back gain
-                uint32_t                nOldFeedDelay;      // Old feedback delay
-                uint32_t                nFeedDelay;         // Feed-back delay
+                float                   fOldFeedDelay;      // Old feedback delay
+                float                   fFeedDelay;         // Feed-back delay
                 bool                    bMS;                // Mid/Side mode
                 bool                    bMono;              // Mono mode
                 bool                    bCustomLfo;         // Custom LFO shape for second channel

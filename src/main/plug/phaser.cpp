@@ -130,8 +130,8 @@ namespace lsp
             fWetGain            = fOldWetGain;
             fOldFeedGain        = GAIN_AMP_M_INF_DB;
             fFeedGain           = GAIN_AMP_M_INF_DB;
-            nOldFeedDelay       = 0;
-            nFeedDelay          = 0;
+            fOldFeedDelay       = 0.0f;
+            fFeedDelay          = 0.0f;
 
             bMS                 = false;
             bMono               = false;
@@ -523,8 +523,8 @@ namespace lsp
             fInGain                 = in_gain;
             fDryGain                = (dry_gain * drywet + 1.0f - drywet) * out_gain;
             fWetGain                = wet_gain * drywet * out_gain;
-            nOldFeedDelay           = nFeedDelay;
-            nFeedDelay              = dspu::millis_to_samples(fSampleRate, pFeedDelay->value());
+            fOldFeedDelay           = fFeedDelay;
+            fFeedDelay              = dspu::millis_to_samples(fSampleRate, pFeedDelay->value());
             fOldFeedGain            = fFeedGain;
             fFeedGain               = (pFeedPhase->value() >= 0.5f) ? -feed_gain : feed_gain;
             nCrossfade              = float(PHASE_MAX) * crossfade * 2.0f;
@@ -774,7 +774,7 @@ namespace lsp
                         const uint32_t lfo_phase= dspu::ilerp(sLfo.nOldInitPhase, sLfo.nInitPhase, s);
 
                         // Apply feedback
-                        const ssize_t fb_delay  = dspu::ilerp(nOldFeedDelay, nFeedDelay, s);
+                        const float fb_delay    = dspu::lerp(fOldFeedDelay, fFeedDelay, s);
                         const float fb_sample   = c->sFeedback.get(fb_delay);
                         sample                 += fb_sample * dspu::lerp(fOldFeedGain, fFeedGain, s);
 
@@ -895,7 +895,7 @@ namespace lsp
                 }
 
                 // Commit values
-                nOldFeedDelay       = nFeedDelay;
+                fOldFeedDelay       = fFeedDelay;
                 fOldFeedGain        = fFeedGain;
                 fOldDepth           = fDepth;
                 sLfo.fOldMinFreq    = sLfo.fMinFreq;
@@ -1202,8 +1202,8 @@ namespace lsp
             v->write("fWetGain", fWetGain);
             v->write("fOldFeedGain", fOldFeedGain);
             v->write("fFeedGain", fFeedGain);
-            v->write("nOldFeedDelay", nOldFeedDelay);
-            v->write("nFeedDelay", nFeedDelay);
+            v->write("fOldFeedDelay", fOldFeedDelay);
+            v->write("fFeedDelay", fFeedDelay);
             v->write("bMS", bMS);
             v->write("bMono", bMono);
             v->write("bCustomLfo", bCustomLfo);

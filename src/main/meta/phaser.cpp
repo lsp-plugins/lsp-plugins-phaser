@@ -124,10 +124,10 @@ namespace lsp
             BYPASS,
 
             // Operating modes
-            SWITCH("sphase", "Signal phase switch", 0.0f),
-            COMBO("hpm", "High-pass filter mode", 0, filter_slopes),
+            SWITCH("sphase", "Signal phase switch", "Phase", 0.0f),
+            COMBO("hpm", "High-pass filter mode", "HPF mode", 0, filter_slopes),
             LOG_CONTROL("hpf", "High-pass filter frequency", "HPF freq", U_HZ, phaser::HPF),
-            COMBO("lpm", "Low-pass filter mode", 0, filter_slopes),
+            COMBO("lpm", "Low-pass filter mode", "LPF mode", 0, filter_slopes),
             LOG_CONTROL("lpf", "Low-pass filter frequency", "LPF freq", U_HZ, phaser::LPF),
 
             // Tempo/rate controls
@@ -136,16 +136,16 @@ namespace lsp
             CONTROL("frac", "Time fraction", U_BAR, phaser::FRACTION),
             CONTROL("denom", "Time fraction denominator", U_BAR, phaser::DENOMINATOR),
             CONTROL("tempo", "Tempo", U_BPM, phaser::TEMPO),
-            SWITCH("sync", "Tempo sync", 0.0f),
-            COMBO("time", "Time computing method", 0, rate_type),
-            TRIGGER("reset", "Reset phase to initial value"),
+            SWITCH("sync", "Tempo sync", "Sync tempo", 0.0f),
+            COMBO("time", "Time computing method", "Method", 0, rate_type),
+            TRIGGER("reset", "Reset phase to initial value", "Reset"),
 
             // LFO settings
-            COMBO("filters", "Number of filters", phaser::FILTERS_DFL - phaser::FILTERS_MIN, filters_list),
+            COMBO("filters", "Number of filters", "Num filters", phaser::FILTERS_DFL - phaser::FILTERS_MIN, filters_list),
             LOG_CONTROL("qfactor", "Filter quality (Q factor)", "Q Factor", U_NONE, phaser::FILTER_QUALITY),
             CONTROL("xfade", "Crossfade", U_PERCENT, phaser::CROSSFADE),
-            COMBO("type", "LFO type", 1, osc_functions),
-            COMBO("period", "LFO period", 0, osc_periods),
+            COMBO("type", "LFO type", "LFO type", 1, osc_functions),
+            COMBO("period", "LFO period", "LFO period", 0, osc_periods),
             CONTROL("lo", "LFO overlap", U_PERCENT, phaser::OVERLAP),
             LOG_CONTROL_DFL("lfs", "LFO frequency start", "LFO start", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_START),
             LOG_CONTROL_DFL("lfe", "LFO frequency end", "LFO end", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_END),
@@ -154,10 +154,10 @@ namespace lsp
             MESH("lgr", "LFO graph", phaser::FILTERS_MAX + 1, phaser::LFO_MESH_SIZE),
 
             // Feedback chain
-            SWITCH("fb_on", "Feedback on", 0),
+            SWITCH("fb_on", "Feedback on", "Feed On", 0),
             CONTROL("fgain", "Feedback gain", U_GAIN_AMP, phaser::FEEDBACK_GAIN),
             CONTROL("fdelay", "Feedback delay", U_MSEC, phaser::FEEDBACK_DELAY),
-            SWITCH("fphase", "Feedback phase switch", 0.0f),
+            SWITCH("fphase", "Feedback phase switch", "Feed phase", 0.0f),
 
             // Loudness control
             IN_GAIN,
@@ -192,12 +192,12 @@ namespace lsp
             BYPASS,
 
             // Operating modes
-            SWITCH("mono", "Test for mono compatibility", 0),
-            SWITCH("ms", "Mid/Side mode switch", 0.0f),
-            SWITCH("sphase", "Signal phase switch", 0.0f),
-            COMBO("hpm", "High-pass filter mode", 0, filter_slopes),
+            SWITCH("mono", "Test for mono compatibility", "Mono", 0),
+            SWITCH("ms", "Mid/Side mode switch", "M/S mode", 0.0f),
+            SWITCH("sphase", "Signal phase switch", "Phase", 0.0f),
+            COMBO("hpm", "High-pass filter mode", "HPF mode", 0, filter_slopes),
             LOG_CONTROL("hpf", "High-pass filter frequency", "HPF freq", U_HZ, phaser::HPF),
-            COMBO("lpm", "Low-pass filter mode", 0, filter_slopes),
+            COMBO("lpm", "Low-pass filter mode", "LPF mode", 0, filter_slopes),
             LOG_CONTROL("lpf", "Low-pass filter frequency", "LPF freq", U_HZ, phaser::LPF),
 
             // Tempo/rate controls
@@ -206,18 +206,18 @@ namespace lsp
             CONTROL("frac", "Time fraction", U_BAR, phaser::FRACTION),
             CONTROL("denom", "Time fraction denominator", U_BAR, phaser::DENOMINATOR),
             CONTROL("tempo", "Tempo", U_BPM, phaser::TEMPO),
-            SWITCH("sync", "Tempo sync", 0.0f),
-            COMBO("time", "Time computing method", 0, rate_type),
-            TRIGGER("reset", "Reset phase to initial value"),
+            SWITCH("sync", "Tempo sync", "Sync tempo", 0.0f),
+            COMBO("time", "Time computing method", "Method", 0, rate_type),
+            TRIGGER("reset", "Reset phase to initial value", "Reset"),
 
             // LFO settings
-            COMBO("filters", "Number of filters", phaser::FILTERS_DFL - phaser::FILTERS_MIN, filters_list),
+            COMBO("filters", "Number of filters", "Num filters", phaser::FILTERS_DFL - phaser::FILTERS_MIN, filters_list),
             LOG_CONTROL("qfactor", "Filter quality (Q factor)", "Q Factor", U_NONE, phaser::FILTER_QUALITY),
             CONTROL("xfade", "Crossfade", U_PERCENT, phaser::CROSSFADE),
-            COMBO("type", "LFO type", 1, osc_functions),
-            COMBO("period", "LFO period", 0, osc_periods),
-            COMBO("atype", "Additional LFO type", 0, additional_osc_functions),
-            COMBO("aperiod", "Additional LFO period", 0, osc_periods),
+            COMBO("type", "LFO type", "LFO type", 1, osc_functions),
+            COMBO("period", "LFO period", "LFO period", 0, osc_periods),
+            COMBO("atype", "Additional LFO type", "LFO2 type", 0, additional_osc_functions),
+            COMBO("aperiod", "Additional LFO period", "LFO2 period", 0, osc_periods),
             CONTROL("lo", "LFO overlap", U_PERCENT, phaser::OVERLAP),
             LOG_CONTROL_DFL("lfs", "LFO frequency start", "LFO start", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_START),
             LOG_CONTROL_DFL("lfe", "LFO frequency end", "LFO end", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_END),
@@ -227,10 +227,10 @@ namespace lsp
             MESH("lgr", "LFO graph", phaser::FILTERS_MAX * 2 + 1, phaser::LFO_MESH_SIZE),
 
             // Feedback chain
-            SWITCH("fb_on", "Feedback on", 0),
+            SWITCH("fb_on", "Feedback on", "Feed on", 0),
             CONTROL("fgain", "Feedback gain", U_GAIN_AMP, phaser::FEEDBACK_GAIN),
             CONTROL("fdelay", "Feedback delay", U_MSEC, phaser::FEEDBACK_DELAY),
-            SWITCH("fphase", "Feedback phase switch", 0.0f),
+            SWITCH("fphase", "Feedback phase switch", "Feed phase", 0.0f),
 
             // Loudness control
             IN_GAIN,

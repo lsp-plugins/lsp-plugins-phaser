@@ -115,6 +115,22 @@ namespace lsp
             FILTER_METER_MONO(id "l", label " left"), \
             FILTER_METER_MONO(id "r", label " right")
 
+        #define TEMPO_SETTINGS \
+            LOG_CONTROL("rate", "Rate", "Rate", U_HZ, phaser::RATE), \
+            AMP_GAIN10("depth", "Depth", GAIN_AMP_0_DB), \
+            CONTROL("frac", "Time fraction", "Frac", U_BAR, phaser::FRACTION), \
+            CONTROL("denom", "Time fraction denominator", "Denom", U_BAR, phaser::DENOMINATOR), \
+            CONTROL("tempo", "Tempo", "Tempo", U_BPM, phaser::TEMPO), \
+            SWITCH("sync", "Tempo sync", "Sync tempo", 0.0f), \
+            COMBO("time", "Time computing method", "Method", 0, rate_type), \
+            TRIGGER("reset", "Reset phase to initial value", "Reset")
+
+        #define FEEDBACK_SETTINGS \
+            SWITCH("fb_on", "Feedback on", "Feed On", 0), \
+            CONTROL("fgain", "Feedback gain", "Feed gain", U_GAIN_AMP, phaser::FEEDBACK_GAIN), \
+            CONTROL("fdelay", "Feedback delay", "Feed delay", U_MSEC, phaser::FEEDBACK_DELAY), \
+            SWITCH("fphase", "Feedback phase switch", "Feed phase", 0.0f)
+
         static const port_t phaser_mono_ports[] =
         {
             // Input and output audio ports
@@ -131,22 +147,15 @@ namespace lsp
             LOG_CONTROL("lpf", "Low-pass filter frequency", "LPF freq", U_HZ, phaser::LPF),
 
             // Tempo/rate controls
-            LOG_CONTROL("rate", "Rate", "Rate", U_HZ, phaser::RATE),
-            AMP_GAIN10("depth", "Depth", GAIN_AMP_0_DB),
-            CONTROL("frac", "Time fraction", U_BAR, phaser::FRACTION),
-            CONTROL("denom", "Time fraction denominator", U_BAR, phaser::DENOMINATOR),
-            CONTROL("tempo", "Tempo", U_BPM, phaser::TEMPO),
-            SWITCH("sync", "Tempo sync", "Sync tempo", 0.0f),
-            COMBO("time", "Time computing method", "Method", 0, rate_type),
-            TRIGGER("reset", "Reset phase to initial value", "Reset"),
+            TEMPO_SETTINGS,
 
             // LFO settings
             COMBO("filters", "Number of filters", "Num filters", phaser::FILTERS_DFL - phaser::FILTERS_MIN, filters_list),
             LOG_CONTROL("qfactor", "Filter quality (Q factor)", "Q Factor", U_NONE, phaser::FILTER_QUALITY),
-            CONTROL("xfade", "Crossfade", U_PERCENT, phaser::CROSSFADE),
+            CONTROL("xfade", "Crossfade", "Xfade", U_PERCENT, phaser::CROSSFADE),
             COMBO("type", "LFO type", "LFO type", 1, osc_functions),
             COMBO("period", "LFO period", "LFO period", 0, osc_periods),
-            CONTROL("lo", "LFO overlap", U_PERCENT, phaser::OVERLAP),
+            CONTROL("lo", "LFO overlap", "LFO overlap", U_PERCENT, phaser::OVERLAP),
             LOG_CONTROL_DFL("lfs", "LFO frequency start", "LFO start", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_START),
             LOG_CONTROL_DFL("lfe", "LFO frequency end", "LFO end", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_END),
             CYC_CONTROL("lip", "LFO initial phase", U_DEG, phaser::PHASE),
@@ -154,10 +163,7 @@ namespace lsp
             MESH("lgr", "LFO graph", phaser::FILTERS_MAX + 1, phaser::LFO_MESH_SIZE),
 
             // Feedback chain
-            SWITCH("fb_on", "Feedback on", "Feed On", 0),
-            CONTROL("fgain", "Feedback gain", U_GAIN_AMP, phaser::FEEDBACK_GAIN),
-            CONTROL("fdelay", "Feedback delay", U_MSEC, phaser::FEEDBACK_DELAY),
-            SWITCH("fphase", "Feedback phase switch", "Feed phase", 0.0f),
+            FEEDBACK_SETTINGS,
 
             // Loudness control
             IN_GAIN,
@@ -201,24 +207,17 @@ namespace lsp
             LOG_CONTROL("lpf", "Low-pass filter frequency", "LPF freq", U_HZ, phaser::LPF),
 
             // Tempo/rate controls
-            LOG_CONTROL("rate", "Rate", "Rate", U_HZ, phaser::RATE),
-            AMP_GAIN10("depth", "Depth", GAIN_AMP_0_DB),
-            CONTROL("frac", "Time fraction", U_BAR, phaser::FRACTION),
-            CONTROL("denom", "Time fraction denominator", U_BAR, phaser::DENOMINATOR),
-            CONTROL("tempo", "Tempo", U_BPM, phaser::TEMPO),
-            SWITCH("sync", "Tempo sync", "Sync tempo", 0.0f),
-            COMBO("time", "Time computing method", "Method", 0, rate_type),
-            TRIGGER("reset", "Reset phase to initial value", "Reset"),
+            TEMPO_SETTINGS,
 
             // LFO settings
             COMBO("filters", "Number of filters", "Num filters", phaser::FILTERS_DFL - phaser::FILTERS_MIN, filters_list),
             LOG_CONTROL("qfactor", "Filter quality (Q factor)", "Q Factor", U_NONE, phaser::FILTER_QUALITY),
-            CONTROL("xfade", "Crossfade", U_PERCENT, phaser::CROSSFADE),
+            CONTROL("xfade", "Crossfade", "Xfade", U_PERCENT, phaser::CROSSFADE),
             COMBO("type", "LFO type", "LFO type", 1, osc_functions),
             COMBO("period", "LFO period", "LFO period", 0, osc_periods),
             COMBO("atype", "Additional LFO type", "LFO2 type", 0, additional_osc_functions),
             COMBO("aperiod", "Additional LFO period", "LFO2 period", 0, osc_periods),
-            CONTROL("lo", "LFO overlap", U_PERCENT, phaser::OVERLAP),
+            CONTROL("lo", "LFO overlap", "LFO overlap", U_PERCENT, phaser::OVERLAP),
             LOG_CONTROL_DFL("lfs", "LFO frequency start", "LFO start", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_START),
             LOG_CONTROL_DFL("lfe", "LFO frequency end", "LFO end", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_END),
             CYC_CONTROL("lip", "LFO initial phase", U_DEG, phaser::PHASE),
@@ -227,10 +226,7 @@ namespace lsp
             MESH("lgr", "LFO graph", phaser::FILTERS_MAX * 2 + 1, phaser::LFO_MESH_SIZE),
 
             // Feedback chain
-            SWITCH("fb_on", "Feedback on", "Feed on", 0),
-            CONTROL("fgain", "Feedback gain", U_GAIN_AMP, phaser::FEEDBACK_GAIN),
-            CONTROL("fdelay", "Feedback delay", U_MSEC, phaser::FEEDBACK_DELAY),
-            SWITCH("fphase", "Feedback phase switch", "Feed phase", 0.0f),
+            FEEDBACK_SETTINGS,
 
             // Loudness control
             IN_GAIN,

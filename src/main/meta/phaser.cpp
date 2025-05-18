@@ -263,7 +263,7 @@ namespace lsp
             "phaser",
             "Phaser",
             B_EFFECTS,
-            "", // TODO: provide ID of the video on YouTube
+            "iqiXtMQckak",
             "This plugin allows to simpulate multi-stage phaser effect"
         };
 

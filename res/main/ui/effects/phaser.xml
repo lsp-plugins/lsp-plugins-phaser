@@ -1,0 +1,526 @@
+<plugin resizable="true">
+	<hbox spacing="4">
+		<!-- LFO -->
+		<group text="labels.lfo" ipadding="0" width.min="292">
+			<grid rows="16" cols="3" transpose="true">
+				<cell cols="3">
+					<button id="reset" text="actions.restart" hfill="true" ui:inject="Button_yellow" height="19" pad.v="4" pad.h="6"/>
+				</cell>
+				<cell cols="3"><hsep pad.v="2" bg.color="bg" vreduce="true"/></cell>
+
+				<!-- Type-->
+				<label text="labels.lfo.type" pad.v="4"/>
+				<void/>
+
+				<cell cols="3">
+					<grid rows="2" cols="1">
+						<hbox pad.h="6" pad.v="4">
+							<combo id="type" hfill="true"/>
+							<combo id="period" hfill="true" pad.l="6"/>
+						</hbox>
+						<hbox pad.h="6" pad.b="4" visibility="ex :in_l">
+							<combo id="atype" hfill="true" />
+							<combo id="aperiod" hfill="true" pad.l="6"/>
+						</hbox>
+					</grid>
+				</cell>
+				<cell cols="3"><hsep pad.v="2" bg.color="bg" vreduce="true"/></cell>
+
+				<!-- Rate -->
+				<void vexpand="true"/>
+				<combo id="time" fill="false" pad.h="6" pad.v="4" width="93"/>
+				<vbox>
+					<hbox fill="false" pad.b="1" width="93" height="38" visibility=":time ieq 0">
+						<align halign="-1">
+							<knob id="rate"/>
+						</align>
+						<value id="rate" width="52" sline="true"/>
+					</hbox>
+					<hbox fill="false" pad.b="1" width="93" height="38" visibility=":time ieq 1">
+						<align halign="-1">
+							<hbox width="44">
+								<frac id="frac" pad.r="6" pad.b="2" pad.t="3" den.id="denom" max="8" color="green"/>
+							</hbox>
+						</align >
+						<value id="frac" width="45" sline="true"/>
+					</hbox>
+				</vbox>
+				<void vexpand="true"/>
+				<cell cols="3"><hsep pad.v="2" bg.color="bg" vreduce="true"/></cell>
+
+				<!-- Crossfade -->
+				<void vexpand="true"/>
+				<hbox fill="false" pad.t="4" width="108">
+					<align halign="-1">
+						<knob id="xfade"/>
+					</align>
+					<vbox>
+						<label text="labels.lfo.crossfade"/>
+						<value id="xfade" same_line="true"/>
+					</vbox>
+				</hbox>
+				<void vexpand="true"/>
+				<cell cols="3"><hsep pad.v="2" bg.color="bg" vreduce="true"/></cell>
+
+				<!-- Phase, Phase Range, Phase difference -->
+				<!-- for stereo version -->
+				<ui:if test="ex :lcp">
+					<cell cols="3">
+						<grid rows="5" cols="5" transpose="true" vexpand="true">
+
+							<!-- Phase -->
+							<void vexpand="true" pad.t="4"/>
+							<label text="labels.lfo.phase" width.min="64"/>
+							<knob id="lip" pad.h="6" pad.v="4"/>
+							<value id="lip" sline="true"/>
+							<void vexpand="true" pad.b="4"/>
+
+							<!-- Phase difference -->
+							<cell rows="5"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
+							<void vexpand="true"/>
+							<label text="labels.lfo.difference" width.min="64"/>
+							<knob id="lcp" pad.h="6" pad.v="4"/>
+							<value id="lcp" sline="true"/>
+							<void vexpand="true"/>
+
+							<cell rows="5"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
+
+							<!-- Phase range -->
+							<void vexpand="true"/>
+							<label text="labels.lfo.phase_range" width.min="64"/>
+							<knob id="lfp" pad.h="6" pad.v="4"/>
+							<value id="lfp" sline="true"/>
+							<void vexpand="true"/>
+
+						</grid>
+					</cell>
+				</ui:if>
+
+				<!-- for mono version -->
+				<!-- Phase -->
+				<ui:if test="!(ex :lcp)">
+					<vbox vexpand="true" pad.v="4">
+						<void vexpand="true"/>
+						<label text="labels.lfo.phase" width.min="64"/>
+						<knob id="lip" pad.h="6" pad.v="4"/>
+						<value id="lip" sline="true"/>
+						<void vexpand="true"/>
+					</vbox>
+				</ui:if>
+
+				<cell rows="2"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
+				<cell rows="4"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
+				<cell rows="3"><vsep pad.h="2" bg.color="bg" hreduce="true"/></cell>
+				<!-- this sep is for mono version Phase, Phase Range-->
+				<ui:if test="!(ex :lcp)"><vsep pad.h="2" bg.color="bg" hreduce="true"/></ui:if>
+
+				<!-- Filters -->
+				<hbox pad.h="6" pad.v="4">
+					<label text="labels.filters"/>
+					<combo id="filters" hfill="true"/>/>
+				</hbox>
+				<hsep pad.v="2" bg.color="bg" vreduce="true"/>
+				<!-- Tempo -->
+				<void vexpand="true"/>
+				<cell rows="2">
+					<vbox fill="false" pad.v="4" pad.h="6">
+
+						<hbox height="43" fill="false" visibility="!:sync">
+							<knob id="tempo" pad.r="6"/>
+							<vbox fill="false">
+								<label text="labels.tempo"/>
+								<value id="tempo" width.min="48" same_line="true"/>
+							</vbox>
+						</hbox>
+
+						<vbox fill="false" visibility=":sync">
+							<indicator id="_time_bpm" format="f4.1!" pad="0" text_color="green"/>
+							<hbox pad.t="3" fill="false">
+								<label text="labels.tempo"/>
+								<label pad.l="6" text="labels.host_bpm"/>
+							</hbox>
+						</vbox>
+
+						<hbox pad.t="4" width="93">
+							<button id="sync" text="labels.sync" fill="true" ui:inject="Button_green"/>
+							<ttap id="tempo" text="actions.tap" pad.l="6" fill="true" tcolor="label_text" visibility="!:sync"/>
+						</hbox>
+
+					</vbox>
+				</cell>
+				<void vexpand="true"/>
+
+				<!-- Overlap -->
+				<void vexpand="true"/>
+				<hbox fill="false" pad.v="4" pad.h="6">
+					<knob id="lo" pad.r="6"/>
+					<vbox>
+						<label text="labels.overlap"/>
+						<value id="lo" width="48" sline="true"/>
+					</vbox>
+				</hbox>
+				<void vexpand="true"/>
+
+				<!-- for mono version -->
+				<!-- Phase range -->
+				<ui:if test="!(ex :lcp)">
+					<vbox vexpand="true" pad.v="4">
+						<void vexpand="true"/>
+						<label text="labels.lfo.phase_range" width.min="64"/>
+						<knob id="lfp" pad.h="6" pad.v="4"/>
+						<value id="lfp" sline="true"/>
+						<void vexpand="true"/>
+					</vbox>
+				</ui:if>
+			</grid>
+		</group>
+
+		<!-- Mono meter for mono version -->
+		<ui:if test="ex :in">
+			<vbox vexpand="true" bg.color="bg_schema">
+				<label text="labels.chan.in" pad.v="3"/>
+				<ledmeter angle="1" bg.inherit="true" expand="true">
+					<ledchannel id="min" min="-36 db" max="+6 db" log="true" type="rms_peak" peak.visibility="true" value.color="mid_in"/>
+				</ledmeter>
+			</vbox>
+		</ui:if>
+		<!-- Stereo meter for stereo version -->
+		<ui:if test="ex :in_l">
+			<vbox vexpand="true" bg.color="bg_schema">
+				<label text="labels.chan.in" pad.v="3"/>
+				<ledmeter angle="1" bg.inherit="true" expand="true">
+					<ledchannel id="min_l" min="-36 db" max="+6 db" log="true" type="rms_peak" peak.visibility="true" value.color="left_in"/>
+					<ledchannel id="min_r" min="-36 db" max="+6 db" log="true" type="rms_peak" peak.visibility="true" value.color="right_in"/>
+				</ledmeter>
+			</vbox>
+		</ui:if>
+
+		<!-- graph -->
+		<group ui:inject="GraphGroup" ipadding="0" expand="true" fill="true" text="labels.graphs.LFO">
+			<vbox>
+				<graph width.min="235" expand="true" height.min="235">
+					<origin hpos="-1" vpos="1" visibility="false"/>
+					<origin hpos="-1" vpos="-1" visibility="false"/>
+
+					<!-- Grid -->
+					<ui:with color="graph_alt_2">
+						<marker v="45"/>
+						<marker v="135"/>
+						<marker v="225"/>
+						<marker v="315"/>
+						<marker v="0.125" ox="1" oy="0"/>
+						<marker v="0.375" ox="1" oy="0"/>
+						<marker v="0.625" ox="1" oy="0"/>
+						<marker v="0.875" ox="1" oy="0"/>
+					</ui:with>
+
+					<ui:with color="graph_alt_1">
+						<marker v="90"/>
+						<marker v="270"/>
+						<marker v="0.25" ox="1" oy="0"/>
+						<marker v="0.75" ox="1" oy="0"/>
+					</ui:with>
+
+					<ui:with color="graph_sec">
+						<marker v="180"/>
+						<marker v="0.5" ox="1" oy="0"/>
+					</ui:with>
+
+					<!-- Axes -->
+					<axis min="0" max="360" angle="1.5" visibility="false"/>
+					<axis min="0" max="1" angle="0" visibility="false"/>
+					<axis o="1" min="0" max="100" angle="0.5" visibility="false"/>
+
+					<!-- Mesh -->
+					<ui:for id="i" first="1" count="8">
+						<mesh id="lgr" x.index="0" y.index="${i}" width="3" color="graph_mesh" smooth="true" visibility="(${:i-1} ile :filters) and ((!ex :atype) or (:atype ieq 0))"/>
+					</ui:for>
+					<ui:for id="i" first="1" count="8">
+						<mesh id="lgr" x.index="0" y.index="${i}" width="3" color="(ex :ms and :ms) ? 'mid' : 'left'" smooth="true" visibility="(${:i-1} ile :filters) and ((ex :atype) and (:atype ine 0))"/>
+					</ui:for>
+					<ui:for id="i" first="1" count="8">
+						<mesh id="lgr" x.index="0" y.index="${:i+1} + :filters" width="3" color="(ex :ms and :ms) ? 'side' : 'right'" smooth="true" visibility="(${:i-1} ile :filters) and ((ex :atype) and (:atype ine 0))"/>
+					</ui:for>
+
+					<!-- Markers -->
+					<marker o="1" ox="2" oy="1" zero="0" id="xfade" editable="true" pointer="vsize" color="graph_marker_cycle" hcolor="graph_marker_cycle" color.a="0.5" hcolor.a="0.5"/>
+
+					<ui:if test="!(ex :in_r)">
+						<ui:for id="i" first="1" count="8">
+							<marker v=":fms_${i}" ox="1" oy="0" color="graph_mesh" color.a="0.65" visibility="${:i-1} ile :filters"/>
+						</ui:for>
+					</ui:if>
+					<ui:if test="ex :in_r">
+						<ui:for id="i" first="1" count="8">
+							<marker v=":fms_${i}l" ox="1" oy="0" color="(:ms) ? 'mid' : 'left'" color.a="0.65" visibility="${:i-1} ile :filters"/>
+						</ui:for>
+						<ui:for id="i" first="1" count="8">
+							<marker v=":fms_${i}r" ox="1" oy="0" color="(:ms) ? 'side' : 'right'" color.a="0.65" visibility="${:i-1} ile :filters"/>
+						</ui:for>
+					</ui:if>
+
+					<!-- Dots -->
+					<ui:if test="!(ex :in_r)">
+						<ui:for id="i" first="1" count="8">
+							<dot x.id="fmp_${i}" y.id="fms_${i}" color="graph_mesh" bcolor="graph_mesh" visibility="${:i-1} ile :filters"/>
+						</ui:for>
+					</ui:if>
+					<ui:if test="ex :in_r">
+						<ui:for id="i" first="1" count="8">
+							<dot x.id="fmp_${i}l" y.id="fms_${i}l" color="(:ms) ? 'mid' : 'left'" bcolor="(:ms) ? 'mid' : 'left'" visibility="${:i-1} ile :filters"/>
+						</ui:for>
+						<ui:for id="i" first="1" count="8">
+							<dot x.id="fmp_${i}r" y.id="fms_${i}r" color="(:ms) ? 'side' : 'right'" bcolor="(:ms) ? 'side' : 'right'" visibility="${:i-1} ile :filters"/>
+						</ui:for>
+					</ui:if>
+
+					<!-- text -->
+					<text x="0" y="0" halign="1" valign="-1" text="graph.values.min"/>
+					<text x="0" y="1" halign="-1" valign="-1" text="graph.values.max"/>
+					<text x="0" y="0.5" halign="0" valign="-1" text="graph.axis.depth"/>
+					<ui:for id="i" first="1" count="7">
+						<text x="${:i*45}" y="0" halign="1" valign="1" text="graph.values.x:deg" text:value="${:i*45}"/>
+					</ui:for>
+					<text x="360" y="0" halign="1" valign="1" text="graph.axis.phase"/>
+
+					<text x="360.0 - 3.6*:xfade" y="1" halign="-1" valign="1" text="labels.lfo.crossfade" color="graph_marker_cycle" color.a="0.5"/>
+				</graph>
+
+				<graph hfill="true" height.min="64">
+					<ui:set id="axis_max" value="max(:lfs, :lfe) * 2.0"/>
+					<ui:set id="axis_min" value="min(:lfs, :lfe) * 0.5"/>
+
+					<origin hpos="-1" vpos="-1" visibility="false"/>
+					<axis angle="0" min="${axis_min}" max="${axis_max}" log="true" visibility="false"/>
+					<axis angle="0.5" min="0" max="3" visibility="false"/>
+
+					<ui:with color="graph_alt_1">
+						<ui:for id="i" first="2" last="9">
+							<marker v="${i} * 10"/>
+							<marker v="${i} * 100"/>
+							<marker v="${i} * 1000"/>
+						</ui:for>
+						<marker v="20000"/>
+					</ui:with>
+
+					<ui:with color="graph_sec">
+						<marker v="10"/>
+						<marker v="100"/>
+						<marker v="1000"/>
+						<marker v="10000"/>
+					</ui:with>
+
+					<marker v="1" ox="1" oy="0" color="graph_prim"/>
+
+					<!-- Markers -->
+					<ui:if test="!(ex :in_r)">
+						<ui:for id="i" first="1" count="8">
+							<marker v=":fmf_${i}" color="graph_mesh" color.a="0.65" visibility="${:i-1} ile :filters"/>
+						</ui:for>
+					</ui:if>
+					<ui:if test="ex :in_r">
+						<ui:for id="i" first="1" count="8">
+							<marker v=":fmf_${i}l" color="(:ms) ? 'mid' : 'left'" color.a="0.65" visibility="${:i-1} ile :filters"/>
+						</ui:for>
+						<ui:for id="i" first="1" count="8">
+							<marker v=":fmf_${i}r" color="(:ms) ? 'side' : 'right'" color.a="0.65" visibility="${:i-1} ile :filters"/>
+						</ui:for>
+					</ui:if>
+
+					<!-- Dots -->
+					<ui:if test="!(ex :in_r)">
+						<ui:for id="i" first="1" count="8">
+							<dot x.id="fmf_${i}" y="2" color="graph_mesh" bcolor="graph_mesh" visibility="${:i-1} ile :filters"/>
+						</ui:for>
+					</ui:if>
+					<ui:if test="ex :in_r">
+						<ui:for id="i" first="1" count="8">
+							<dot x.id="fmf_${i}l" y="${7.0 / 3.0}" color="(:ms) ? 'mid' : 'left'" bcolor="(:ms) ? 'mid' : 'left'" visibility="${:i-1} ile :filters"/>
+						</ui:for>
+						<ui:for id="i" first="1" count="8">
+							<dot x.id="fmf_${i}r" y="${5.0 / 3.0}" color="(:ms) ? 'side' : 'right'" bcolor="(:ms) ? 'side' : 'right'" visibility="${:i-1} ile :filters"/>
+						</ui:for>
+					</ui:if>
+
+					<!-- Text -->
+					<text x="${axis_min}" y="0" pgroup="0" halign="1" priority="0" text="graph.units.hz"/>
+
+					<ui:with y="0" pgroup="0" halign="1" priority="10">
+						<text x="10" text="20"/>
+						<text x="100" text="100"/>
+						<text x="1000" text="graph.values.x_k" text:value="1"/>
+						<text x="10000" text="graph.values.x_k" text:value="10"/>
+					</ui:with>
+					<ui:with y="0" pgroup="0" halign="1" priority="20">
+						<text x="40" text="40"/>
+						<text x="400" text="400"/>
+						<text x="4000" text="graph.values.x_k" text:value="4"/>
+					</ui:with>
+					<ui:with y="0" pgroup="0" halign="1" priority="30">
+						<text x="20" text="20"/>
+						<text x="80" text="80"/>
+						<text x="200" text="200"/>
+						<text x="800" text="800"/>
+						<text x="2000" text="graph.values.x_k" text:value="2"/>
+						<text x="8000" text="graph.values.x_k" text:value="8"/>
+						<text x="20000" text="graph.values.x_k" text:value="20"/>
+					</ui:with>
+					<ui:with y="0" pgroup="0" halign="1" priority="40">
+						<text x="30" text="30"/>
+						<text x="60" text="60"/>
+						<text x="300" text="300"/>
+						<text x="600" text="600"/>
+						<text x="3000" text="graph.values.x_k" text:value="3"/>
+						<text x="6000" text="graph.values.x_k" text:value="6"/>
+					</ui:with>
+					<ui:with y="0" pgroup="0" halign="1" priority="50">
+						<text x="50" text="50"/>
+						<text x="90" text="90"/>
+						<text x="500" text="500"/>
+						<text x="900" text="900"/>
+						<text x="5000" text="graph.values.x_k" text:value="5"/>
+						<text x="9000" text="graph.values.x_k" text:value="9"/>
+					</ui:with>
+					<ui:with y="0" pgroup="0" halign="1" priority="60">
+						<text x="70" text="70"/>
+						<text x="700" text="700"/>
+						<text x="7000" text="graph.values.x_k" text:value="7"/>
+					</ui:with>
+				</graph>
+			</vbox>
+		</group>
+
+		<!-- Mono meter for mono version -->
+		<ui:if test="ex :in">
+			<vbox vexpand="true" bg.color="bg_schema">
+				<label text="labels.chan.out" pad.v="3"/>
+				<ledmeter angle="1" expand="true" bg.inherit="true">
+					<ledchannel id="mout" min="-36 db" max="+6 db" log="true" type="rms_peak" peak.visibility="true" value.color="mid"/>
+				</ledmeter>
+			</vbox>
+		</ui:if>
+		<!-- Stereo meter for stereo version -->
+		<ui:if test="ex :in_l">
+			<vbox vexpand="true" bg.color="bg_schema">
+				<label text="labels.chan.out" pad.v="3"/>
+				<ledmeter angle="1" expand="true" bg.inherit="true">
+					<ledchannel id="mout_l" min="-36 db" max="+6 db" log="true" type="rms_peak" peak.visibility="true" value.color="left"/>
+					<ledchannel id="mout_r" min="-36 db" max="+6 db" log="true" type="rms_peak" peak.visibility="true" value.color="right"/>
+				</ledmeter>
+			</vbox>
+		</ui:if>
+
+		<!-- Controls and Signal -->
+		<vbox>
+			<!-- Controls -->
+			<group text="labels.controls" vexpand="true" ipadding="0">
+				<grid rows="8" cols="1">
+					<!-- mid/side -->
+					<!-- <cell cols="2"> -->
+					<hbox hfill="true" pad.v="4" pad.h="6">
+						<button id="ms" width.min="89" text="labels.chan.mid_side" hfill="true" ui:inject="Button_mid" height="19" visibility="ex :in_l"/>
+						<button id="mono" width.min="89" text="labels.signal.mono" hfill="true" pad.h="6" ui:inject="Button_mono" height="19" visibility="ex :in_l"/>
+						<button id="sphase" width.min="89" text="labels.signal.phase" fill="true" height="19" ui:inject="Button_orange"/>
+					</hbox>
+
+					<hsep pad.v="2" bg.color="bg" vreduce="true"/>
+
+					<!-- Frequency, Quality and Depth-->
+					<grid rows="6" cols="7" vexpand="true">
+						<cell cols="3"><void vexpand="true" pad.t="4"/></cell>
+						<cell rows="6">
+							<vsep pad.h="2" bg.color="bg" hreduce="true"/>
+						</cell>
+						<void vexpand="true" pad.t="4"/>
+						<cell rows="6">
+							<vsep pad.h="2" bg.color="bg" hreduce="true"/>
+						</cell>
+						<void vexpand="true" pad.t="4"/>
+
+						<cell cols="3">
+							<label text="labels.frequency" pad.b="4"/>
+						</cell>
+
+						<cell rows="2">
+							<label text="labels.quality"/>
+						</cell>
+
+						<cell rows="2">
+							<label text="labels.depth"/>
+						</cell>
+
+						<label text="labels.frequency.min"/>
+						<cell rows="4">
+							<void pad.h="2" hreduce="true"/>
+						</cell>
+						<label text="labels.frequency.max"/>
+
+						<knob id="lfs" pad.h="6" pad.v="4"/>
+						<knob id="lfe" pad.h="6" pad.v="4"/>
+						<knob id="qfactor" pad.h="6" pad.v="4"/>
+						<knob id="depth" pad.h="6" pad.v="4"/>
+
+						<value id="lfs" width.min="56" sline="true"/>
+						<value id="lfe" width.min="56" sline="true"/>
+						<value id="qfactor" width.min="56" sline="true"/>
+						<value id="depth" width.min="56" sline="true"/>
+						<void vexpand="true" pad.b="4"/>
+						<void vexpand="true" pad.b="4"/>
+						<void vexpand="true" pad.b="4"/>
+						<void vexpand="true" pad.b="4"/>
+
+					</grid>
+					<hsep pad.v="2" bg.color="bg" vreduce="true"/>
+					<ui:with bright=":fb_on ? 1 : 0.75" bg.bright=":fb_on ? 1.0 : :const_bg_darken">
+						<void vexpand="true"/>
+						<hbox pad.v="4" pad.h="6">
+							<button id="fb_on" width.min="134" text="labels.feedback" hfill="true" ui:inject="Button_cyan" height="19"/>
+							<button id="fphase" width.min="134" text="labels.signal.phase" hfill="true" pad.l="6" ui:inject="Button_orange" height="19"/>
+						</hbox>
+						<hbox>
+							<hbox fill="false" pad.v="4">
+								<knob id="fgain" pad.r="6" scolor=":fb_on ? 'kscale' : 'cycle_inactive'"/>
+								<vbox width.min="54">
+									<label text="labels.gain"/>
+									<value id="fgain" width="48" same_line="true"/>
+								</vbox>
+							</hbox>
+							<hbox fill="false" pad.v="4">
+								<knob id="fdelay" pad.r="6" scolor=":fb_on ? 'kscale' : 'cycle_inactive'"/>
+								<vbox width.min="54">
+									<label text="labels.delay"/>
+									<value id="fdelay" width="48" same_line="true"/>
+								</vbox>
+							</hbox>
+						</hbox>
+						<void vexpand="true"/>
+					</ui:with>
+				</grid>
+			</group>
+			<!-- Separator -->
+			<hsep pad.v="2" bg.color="bg" vreduce="true"/>
+			<!-- Signal -->
+			<group hexpand="true" text="groups.signal">
+				<grid rows="3" cols="5">
+					<label text="labels.chan.input"/>
+					<label text="labels.signal.dry"/>
+					<label text="labels.signal.wet"/>
+					<label text="labels.signal.drywet"/>
+					<label text="labels.chan.output"/>
+
+					<knob id="g_in" pad.h="6" pad.v="4"/>
+					<knob id="dry" scolor="dry" pad.h="6" pad.v="4"/>
+					<knob id="wet" scolor="wet" pad.h="6" pad.v="4"/>
+					<knob id="drywet" scolor="drywet" pad.h="6" pad.v="4"/>
+					<knob id="g_out" pad.h="6" pad.v="4"/>
+
+					<value id="g_in" width.min="56" sline="true"/>
+					<value id="dry" width.min="56" sline="true"/>
+					<value id="wet" width.min="56" sline="true"/>
+					<value id="drywet" width.min="56" sline="true"/>
+					<value id="g_out" width.min="56" sline="true"/>
+				</grid>
+			</group>
+		</vbox>
+	</hbox>
+</plugin>

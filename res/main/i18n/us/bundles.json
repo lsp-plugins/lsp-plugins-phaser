@@ -1,0 +1,7 @@
+{
+	"phaser": {
+		"name": "Phaser",
+		"description": "This plugin allows to simpulate multi-stage phaser effect"
+	}
+}
+

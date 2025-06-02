@@ -45,6 +45,7 @@
 	<?php } ?>
 	<li><b>Phase</b> - the button that allows to enable phase inversion of the processed signal which is added to original one.</li>
 	<li><b>Frequency</b> - set of two knobs that allow to set the frequency range for all-pass filters.</li>
+	<li><b>Frequency Link</b> - button that allows to link frequency buttons together to keep constant logarithmic frequency range.</li>
 	<li><b>Quality</b> - the quality factor of all-pass filters.</li>
 	<li><b>Depth</b> - the amount of processed signal added to the unprocessed signal.</li>
 	<li><b>Feedback</b> - the button that switches on the feedback chain.</li>

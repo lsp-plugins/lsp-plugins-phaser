@@ -1,4 +1,10 @@
 <plugin resizable="true">
+	<!-- Control linking -->
+	<ctl:link
+		id.lfstart="lfs" value.lfstart=":lfe * :_old_lfstart / :_old_lfend"
+		id.lfend="lfe" value.lfend=":lfs * :_old_lfend / :_old_lfstart"
+		activity=":lflink" />
+
 	<hbox spacing="4">
 		<!-- LFO -->
 		<group text="labels.lfo" ipadding="0" width.min="292">
@@ -438,7 +444,10 @@
 						<void vexpand="true" pad.t="4"/>
 
 						<cell cols="3">
-							<label text="labels.frequency" pad.b="4"/>
+							<hbox>
+								<label text="labels.frequency" pad.b="4"/>
+								<button id="lflink" text="labels.link" ui:inject="Button_green" />
+							</hbox>
 						</cell>
 
 						<cell rows="2">

@@ -317,6 +317,7 @@ namespace lsp
             BIND_PORT(sLfo.pOverlap);
             BIND_PORT(sLfo.pMinFreq);
             BIND_PORT(sLfo.pMaxFreq);
+            SKIP_PORT("Frequency link");
             BIND_PORT(sLfo.pInitPhase);
             BIND_PORT(sLfo.pIFilterPhase);
             if (nChannels > 1)

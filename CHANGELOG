@@ -6,6 +6,7 @@
 * Added frequency linking button that allows to link minimum and maximum frequencies
   and to keep logarithmic frequency range being constant.
 * Added exciter-like effect presets contributed by Attila Schler.
+* Updated build scripts and dependencies.
 
 === 1.0.0 ===
 * Initial release.

@@ -1,4 +1,7 @@
 <plugin resizable="true">
+	<!-- Control linking -->
+	<ctl:link id.lfstart="lfs" value.lfstart=":lfe * :_old_lfstart / :_old_lfend" id.lfend="lfe" value.lfend=":lfs * :_old_lfend / :_old_lfstart" activity=":lflink"/>
+
 	<hbox spacing="4">
 		<!-- LFO -->
 		<group text="labels.lfo" ipadding="0" width.min="292">
@@ -19,7 +22,7 @@
 							<combo id="period" hfill="true" pad.l="6"/>
 						</hbox>
 						<hbox pad.h="6" pad.b="4" visibility="ex :in_l">
-							<combo id="atype" hfill="true" />
+							<combo id="atype" hfill="true"/>
 							<combo id="aperiod" hfill="true" pad.l="6"/>
 						</hbox>
 					</grid>
@@ -416,7 +419,6 @@
 			<group text="labels.controls" vexpand="true" ipadding="0">
 				<grid rows="8" cols="1">
 					<!-- mid/side -->
-					<!-- <cell cols="2"> -->
 					<hbox hfill="true" pad.v="4" pad.h="6">
 						<button id="ms" width.min="89" text="labels.chan.mid_side" hfill="true" ui:inject="Button_mid" height="19" visibility="ex :in_l"/>
 						<button id="mono" width.min="89" text="labels.signal.mono" hfill="true" pad.h="6" ui:inject="Button_mono" height="19" visibility="ex :in_l"/>
@@ -437,9 +439,9 @@
 						</cell>
 						<void vexpand="true" pad.t="4"/>
 
-						<cell cols="3">
-							<label text="labels.frequency" pad.b="4"/>
-						</cell>
+						<label text="labels.frequency" pad.b="4"/>
+						<void pad.h="2" hreduce="true"/>
+						<button id="lflink" text="labels.link" ui:inject="Button_green"/>
 
 						<cell rows="2">
 							<label text="labels.quality"/>
@@ -450,13 +452,15 @@
 						</cell>
 
 						<label text="labels.frequency.min"/>
-						<cell rows="4">
+						<cell rows="3">
 							<void pad.h="2" hreduce="true"/>
 						</cell>
 						<label text="labels.frequency.max"/>
 
-						<knob id="lfs" pad.h="6" pad.v="4"/>
-						<knob id="lfe" pad.h="6" pad.v="4"/>
+						<ui:with pad.h="6" pad.v="4" scolor=":lflink ? 'green' : 'kscale'">
+							<knob id="lfs"/>
+							<knob id="lfe"/>
+						</ui:with>
 						<knob id="qfactor" pad.h="6" pad.v="4"/>
 						<knob id="depth" pad.h="6" pad.v="4"/>
 

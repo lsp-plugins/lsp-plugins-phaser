@@ -25,7 +25,7 @@
 
 #define LSP_PLUGINS_PHASER_VERSION_MAJOR       1
 #define LSP_PLUGINS_PHASER_VERSION_MINOR       0
-#define LSP_PLUGINS_PHASER_VERSION_MICRO       0
+#define LSP_PLUGINS_PHASER_VERSION_MICRO       1
 
 #define LSP_PLUGINS_PHASER_VERSION  \
     LSP_MODULE_VERSION( \
@@ -158,6 +158,7 @@ namespace lsp
             CONTROL("lo", "LFO overlap", "LFO overlap", U_PERCENT, phaser::OVERLAP),
             LOG_CONTROL_DFL("lfs", "LFO frequency start", "LFO start", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_START),
             LOG_CONTROL_DFL("lfe", "LFO frequency end", "LFO end", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_END),
+            SWITCH("lflink", "Link LFO start and end frequency", "LFO link", 0),
             CYC_CONTROL("lip", "LFO initial phase", "LFO phase", U_DEG, phaser::PHASE),
             CYC_CONTROL("lfp", "Inter-filter phase range", "Inter-phase", U_DEG, phaser::FILTER_PHASE),
             MESH("lgr", "LFO graph", phaser::FILTERS_MAX + 1, phaser::LFO_MESH_SIZE),
@@ -220,6 +221,7 @@ namespace lsp
             CONTROL("lo", "LFO overlap", "LFO overlap", U_PERCENT, phaser::OVERLAP),
             LOG_CONTROL_DFL("lfs", "LFO frequency start", "LFO start", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_START),
             LOG_CONTROL_DFL("lfe", "LFO frequency end", "LFO end", U_HZ, phaser::LFO_FREQ, phaser::LFO_FREQ_END),
+            SWITCH("lflink", "Link LFO start and end frequency", "LFO link", 0),
             CYC_CONTROL("lip", "LFO initial phase", "LFO phase", U_DEG, phaser::PHASE),
             CYC_CONTROL("lfp", "Inter-filter phase range", "Inter-phase", U_DEG, phaser::FILTER_PHASE),
             CYC_CONTROL("lcp", "Inter-channel phase", "Chan phase", U_DEG, phaser::CHANNEL_PHASE),

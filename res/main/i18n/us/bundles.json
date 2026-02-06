@@ -1,7 +1,11 @@
 {
 	"phaser": {
-		"name": "Phaser",
-		"description": "This plugin allows to simpulate multi-stage phaser effect"
-	}
+		"description": "This plugin allows to simpulate multi-stage phaser effect",
+		"name": "Phaser"
+	},
+    "launcher": {
+        "phaser_mono": "Mono",
+        "phaser_stereo": "Stereo"
+    }
 }
 

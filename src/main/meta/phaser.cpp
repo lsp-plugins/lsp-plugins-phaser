@@ -294,7 +294,7 @@ namespace lsp
             clap_features_mono,
             E_DUMP_STATE | E_INLINE_DISPLAY,
             phaser_mono_ports,
-            "effects/phaser.xml",
+            "plugins/effects/phaser.xml",
             "effects/phaser",
             mono_plugin_port_groups,
             &phaser_bundle
@@ -325,7 +325,7 @@ namespace lsp
             clap_features_stereo,
             E_DUMP_STATE | E_INLINE_DISPLAY,
             phaser_stereo_ports,
-            "effects/phaser.xml",
+            "plugins/effects/phaser.xml",
             "effects/phaser",
             stereo_plugin_port_groups,
             &phaser_bundle

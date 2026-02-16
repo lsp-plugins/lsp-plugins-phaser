@@ -297,7 +297,8 @@ namespace lsp
             "plugins/effects/phaser.xml",
             "effects/phaser",
             mono_plugin_port_groups,
-            &phaser_bundle
+            &phaser_bundle,
+            2
         };
         LSP_REGISTER_METADATA(phaser_mono);
 
@@ -328,12 +329,10 @@ namespace lsp
             "plugins/effects/phaser.xml",
             "effects/phaser",
             stereo_plugin_port_groups,
-            &phaser_bundle
+            &phaser_bundle,
+            1
         };
         LSP_REGISTER_METADATA(phaser_stereo);
 
     } /* namespace meta */
 } /* namespace lsp */
-
-
-

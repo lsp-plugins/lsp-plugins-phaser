@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2025 Linux Studio Plugins Project <https://lsp-plug.in/>
- *           (C) 2025 Vladimir Sadovnikov <sadko4u@gmail.com>
+ * Copyright (C) 2026 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2026 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
  * This file is part of lsp-plugins-phaser
  * Created on: 10 мар 2025 г.
@@ -20,12 +20,13 @@
  */
 
 #include <lsp-plug.in/plug-fw/meta/ports.h>
+#include <lsp-plug.in/plug-fw/meta/registry.h>
 #include <lsp-plug.in/shared/meta/developers.h>
 #include <private/meta/phaser.h>
 
 #define LSP_PLUGINS_PHASER_VERSION_MAJOR       1
 #define LSP_PLUGINS_PHASER_VERSION_MINOR       0
-#define LSP_PLUGINS_PHASER_VERSION_MICRO       4
+#define LSP_PLUGINS_PHASER_VERSION_MICRO       5
 
 #define LSP_PLUGINS_PHASER_VERSION  \
     LSP_MODULE_VERSION( \
@@ -293,11 +294,13 @@ namespace lsp
             clap_features_mono,
             E_DUMP_STATE | E_INLINE_DISPLAY,
             phaser_mono_ports,
-            "effects/phaser.xml",
+            "plugins/effects/phaser.xml",
             "effects/phaser",
             mono_plugin_port_groups,
-            &phaser_bundle
+            &phaser_bundle,
+            2
         };
+        LSP_REGISTER_METADATA(phaser_mono);
 
         const plugin_t phaser_stereo =
         {
@@ -323,13 +326,13 @@ namespace lsp
             clap_features_stereo,
             E_DUMP_STATE | E_INLINE_DISPLAY,
             phaser_stereo_ports,
-            "effects/phaser.xml",
+            "plugins/effects/phaser.xml",
             "effects/phaser",
             stereo_plugin_port_groups,
-            &phaser_bundle
+            &phaser_bundle,
+            1
         };
+        LSP_REGISTER_METADATA(phaser_stereo);
+
     } /* namespace meta */
 } /* namespace lsp */
-
-
-
